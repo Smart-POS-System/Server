@@ -1,0 +1,80 @@
+version: "3.8" #version of the docker compse
+services: #define the containers to be run
+  product-srv:
+    build:
+      context: ./product-catalogue-service
+      dockerfile: Dockerfile
+    # command: node --watch index.js
+    ports:
+      - "3001:3001"
+
+    develop:
+      watch:
+        - path: ./product-catalugue-service/package.json
+          action: rebuild
+        - path: ./product-catalogue-service/package-lock.json
+          action: rebuild
+
+        - path: ./product-catalogue-service
+          target: /app
+          action: sync
+
+  user-srv:
+    build:
+      context: ./user-management-service
+      dockerfile: Dockerfile
+    # command: node --watch index.js
+    ports:
+      - "3002:3002"
+
+    develop:
+      watch:
+        - path: ./user-management-service/package.json
+          action: rebuild
+        - path: ./user-management-service/package-lock.json
+          action: rebuild
+
+        - path: ./user-management-service
+          target: /app
+          action: sync
+
+  inventory-srv:
+    build:
+      context: ./inventory-service
+      dockerfile: Dockerfile
+    # command: node --watch index.js
+    ports:
+      - "3003:3003"
+
+    develop:
+      watch:
+        - path: ./inventory-service/package.json
+          action: rebuild
+        - path: ./inventory-service/package-lock.json
+          action: rebuild
+
+        - path: ./inventory-service
+          target: /app
+          action: sync
+
+  email-srv:
+    build:
+      context: ./email-service
+      dockerfile: Dockerfile
+    # command: node --watch index.js
+    ports:
+      - "3004:3004"
+
+    develop:
+      watch:
+        - path: ./email-service/package.json
+          action: rebuild
+        - path: ./email-service/package-lock.json
+          action: rebuild
+
+        - path: ./email-service
+          target: /app
+          action: sync
+
+volumes:
+  test:
