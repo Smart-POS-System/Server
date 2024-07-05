@@ -4,7 +4,7 @@ import { testRoute } from "./routes/test-route.js";
 const app = express();
 const port = 3002;
 
-app.use(json());
+app.use(json);
 app.use(testRoute);
 
 app.listen(port, () => {
