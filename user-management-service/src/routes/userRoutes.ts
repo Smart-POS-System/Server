@@ -4,12 +4,15 @@ import {
   isUserExists,
   validateUser,
 } from "../Controllers/userController";
-import { login } from "../Controllers/authController";
+import { login, protect } from "../Controllers/authController";
+import { errorHandler } from "../Controllers/errorController";
 
 const router = express.Router();
 
-router.post("/login", login);
+router.post("/login", login, errorHandler);
 
-router.route("/").post(isUserExists, validateUser, createUserByAdmin);
+router
+  .route("/")
+  .post(protect, isUserExists, validateUser, createUserByAdmin, errorHandler);
 
 export { router as userRouter };

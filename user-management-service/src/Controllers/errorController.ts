@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-
-const AppError = require("./../utils/appError");
+import AppError from "../Utils/appError";
 
 /*const handleCastErrorDB = err => {
   const message = `Invalid ${err.path}: ${err.value}.`;
@@ -70,15 +69,17 @@ export const errorHandler = (
   if (process.env.NODE_ENV === "development") {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === "production") {
-    let error = { ...err };
+    let error = { ...err, message: err.message };
 
-    //if (error.name === "CastError") error = handleCastErrorDB(error);
-    // if (error.code === 11000) error = handleDuplicateFieldsDB(error);
-    //   if (error.name === "ValidationError")
-    //     error = handleValidationErrorDB(error);
     if (error.name === "JsonWebTokenError") error = handleJWTError();
     if (error.name === "TokenExpiredError") error = handleJWTExpiredError();
 
     sendErrorProd(error, res);
   }
 };
+
+// Ensure you have error handling for unhandled promise rejections
+process.on("unhandledRejection", (reason, promise) => {
+  console.log("Unhandled Rejection at:", promise, "reason:", reason);
+  // Application specific logging, throwing an error, or other logic here
+});

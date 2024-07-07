@@ -6,8 +6,8 @@ import AppDataSource from "../index";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import { promisify } from "util";
 
-// Load environment variables from .env file
 dotenv.config({ path: "../../config.env" });
 
 const signToken = (email: string): string => {
@@ -77,4 +77,83 @@ export const correctPassword = async function (
   userPassword: any
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+const verifyToken = (token: string, secret: string) => {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, secret, (err, decoded) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(decoded);
+      }
+    });
+  });
+};
+
+export const protect = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    let token: string | undefined;
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+
+    if (!token) {
+      return next(
+        new AppError("You are not logged in! Please log in to get access.", 401)
+      );
+    }
+
+    //Verification token
+    const jwtSecret = process.env.JWT_SECRET as string;
+
+    const decoded: any = await verifyToken(token, jwtSecret);
+
+    //Checking whether the user still exists
+    const userRepository = AppDataSource.getRepository(User);
+
+    const currentUser = await userRepository.findOne({
+      where: {
+        email: decoded.email,
+      },
+    });
+
+    if (!currentUser) {
+      return next(
+        new AppError(
+          "The user belonging to this token does no longer exist.",
+          401
+        )
+      );
+    }
+
+    // Checking whether the user changed password after the token was issued
+    if (changedPasswordAfter(decoded.iat, currentUser.passwordChangedAt)) {
+      return next(
+        new AppError(
+          "User recently changed password! Please log in again.",
+          401
+        )
+      );
+    }
+
+    // Granting access to the protected route
+    req.user = currentUser;
+    next();
+  }
+);
+
+const changedPasswordAfter = function (
+  JWTTimestamp: number,
+  passwordChangedAt: Date | null
+) {
+  if (passwordChangedAt) {
+    const changedTimestamp = passwordChangedAt.getTime() / 1000;
+    return JWTTimestamp < changedTimestamp;
+  }
+  // Assuming passwordChangedAt is null
+  return false;
 };

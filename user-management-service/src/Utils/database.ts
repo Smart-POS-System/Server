@@ -22,4 +22,7 @@ export class User {
 
   @Column()
   lastName: string;
+
+  @Column("timestamp with time zone", { nullable: true })
+  passwordChangedAt: Date | null;
 }
