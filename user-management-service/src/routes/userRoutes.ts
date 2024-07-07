@@ -1,12 +1,15 @@
 import express from "express";
+import {
+  createUserByAdmin,
+  isUserExists,
+  validateUser,
+} from "../Controllers/userController";
+import { login } from "../Controllers/authController";
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  res.status(200).json({
-    status: "success",
-    message: "Signup successful",
-  });
-});
+router.post("/login", login);
+
+router.route("/").post(isUserExists, validateUser, createUserByAdmin);
 
 export { router as userRouter };

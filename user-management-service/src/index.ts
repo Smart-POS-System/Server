@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import { DataSource } from "typeorm";
 import app from "./app";
+import { User } from "./Utils/database";
 
 process.on("uncaughtException", (err: Error) => {
   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
@@ -18,7 +19,8 @@ const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   synchronize: true,
-  logging: true,
+  logging: false,
+  entities: [User],
 });
 
 AppDataSource.initialize()
@@ -41,3 +43,5 @@ process.on("unhandledRejection", (err: Error) => {
     process.exit(1);
   });
 });
+
+export default AppDataSource;
