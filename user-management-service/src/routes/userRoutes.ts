@@ -1,7 +1,10 @@
 import express from "express";
 import {
   createUserByAdmin,
+  createUserByUser,
   isUserExists,
+  sendMailToUser,
+  validateCreation,
   validateUser,
 } from "../Controllers/userController";
 import {
@@ -22,8 +25,11 @@ router
     isUserExists,
     validateUser,
     restrictToCreate,
+    sendMailToUser,
     createUserByAdmin,
     errorHandler
   );
+
+router.post("/createUser", validateCreation, createUserByUser, errorHandler);
 
 export { router as userRouter };
