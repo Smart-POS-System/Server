@@ -1,12 +1,12 @@
-version: "3.8" #version of the docker compse
 services: #define the containers to be run
   product-srv:
+    container_name: product-service
     build:
       context: ./product-catalogue-service
       dockerfile: Dockerfile
     # command: node --watch index.js
     ports:
-      - "3001:3001"
+      - "3011:3011"
 
     develop:
       watch:
@@ -20,12 +20,13 @@ services: #define the containers to be run
           action: sync
 
   user-srv:
+    container_name: user-service
     build:
       context: ./user-management-service
       dockerfile: Dockerfile
     # command: node --watch index.js
     ports:
-      - "3002:3002"
+      - "3010:3010"
 
     develop:
       watch:
@@ -39,12 +40,13 @@ services: #define the containers to be run
           action: sync
 
   inventory-srv:
+    container_name: inventory-service
     build:
       context: ./inventory-service
       dockerfile: Dockerfile
     # command: node --watch index.js
     ports:
-      - "3003:3003"
+      - "3009:3009"
 
     develop:
       watch:
@@ -58,12 +60,13 @@ services: #define the containers to be run
           action: sync
 
   email-srv:
+    container_name: email-service
     build:
       context: ./email-service
       dockerfile: Dockerfile
     # command: node --watch index.js
     ports:
-      - "3004:3004"
+      - "3008:3008"
 
     develop:
       watch:
@@ -76,5 +79,35 @@ services: #define the containers to be run
           target: /app
           action: sync
 
+  database-service:
+    container_name: database-service
+    build:
+      context: ./database-service
+      dockerfile: Dockerfile
+    ports:
+      - "3012:3000"
+    environment:
+      - DB_TYPE=postgres
+      - PG_HOST=db
+      - PG_PORT=5432
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres
+      - PG_DB=postgres
+    depends_on:
+      - db
+
+  db:
+    container_name: db
+    image: postgres:12
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    
+
 volumes:
-  test:
+  pgdata: {}

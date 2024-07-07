@@ -1,4 +1,4 @@
-import express from "express";
+import express, { json } from "express";
 import { testRoute } from "./routes/test-route.js";
 
 const app = express();
