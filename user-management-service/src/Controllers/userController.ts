@@ -116,7 +116,7 @@ export const createUserByAdmin = catchAsync(
       res.status(201).json({
         status: "success",
         data: {
-          user: newUser,
+          user: { ...newUser, password: undefined },
           message: "Send email to user to set username and password",
         },
       });
@@ -172,12 +172,6 @@ export const createUserByUser = catchAsync(
 
     const userRepository = AppDataSource.getRepository(User);
 
-    /*  const user = await userRepository.findOne({
-      where: {
-        email,
-      },
-    }); */
-
     const user = await userRepository
       .createQueryBuilder("user")
       .where("user.email = :email", { email })
@@ -190,6 +184,16 @@ export const createUserByUser = catchAsync(
       return next(new AppError("Please enter the correct email address", 404));
     }
 
+    const isAlreadyTakenUsername = await userRepository.findOne({
+      where: {
+        username,
+      },
+    });
+
+    if (isAlreadyTakenUsername) {
+      return next(new AppError("Username is already taken", 400));
+    }
+
     user.password = await bcrypt.hash(password, 12);
     user.username = username;
     user.passwordChangedAt = new Date();
@@ -199,7 +203,7 @@ export const createUserByUser = catchAsync(
     res.status(201).json({
       status: "success",
       data: {
-        user: user,
+        user: { ...user, password: undefined },
         message: "Account created successfully",
       },
     });
@@ -211,10 +215,13 @@ export const getAllUsers = catchAsync(
     try {
       const userRepository = AppDataSource.getRepository(User);
       const users = await userRepository.find();
+
+      const usersData = users.map(({ password, ...rest }) => rest);
+
       res.status(200).json({
         status: "success",
         data: {
-          users,
+          users: usersData,
         },
       });
     } catch (err: any) {
