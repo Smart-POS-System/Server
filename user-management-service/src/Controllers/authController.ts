@@ -68,7 +68,6 @@ export const login = catchAsync(
       return next(new AppError("Incorrect email or password", 401));
     }
 
-    // If everything ok, send token to client
     createSendToken(user, 200, res);
   }
 );
@@ -112,13 +111,12 @@ export const protect = catchAsync(
     }
 
     console.log("Token: ", token);
-    // Verify token
+
     const jwtSecret = process.env.JWT_SECRET as string;
 
     try {
       const decoded: any = await verifyToken(token, jwtSecret);
 
-      // Check if user still exists
       const userRepository = AppDataSource.getRepository(User);
       const currentUser = await userRepository.findOne({
         where: { email: decoded.email },
@@ -133,7 +131,7 @@ export const protect = catchAsync(
         );
       }
 
-      // Check if user changed password after the token was issued
+      // Checking whether user changed password after the token was issued
       if (changedPasswordAfter(decoded.iat, currentUser.passwordChangedAt)) {
         return next(
           new AppError(

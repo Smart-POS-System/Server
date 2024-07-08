@@ -23,12 +23,12 @@ export class User {
   @Column()
   lastName: string;
 
-  @Column("timestamp with time zone", { nullable: true })
+  @Column("timestamp", { nullable: true })
   passwordChangedAt: Date | null;
 
   @Column({ type: "text", nullable: true })
   passwordResetToken: string | null;
 
-  @Column("timestamp with time zone", { nullable: true })
+  @Column("timestamp", { nullable: true })
   passwordResetExpires: Date | null;
 }
