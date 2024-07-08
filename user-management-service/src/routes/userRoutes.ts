@@ -11,6 +11,7 @@ import {
 import {
   forgotPassword,
   login,
+  logout,
   protect,
   resetPassword,
   restrictTo,
@@ -23,6 +24,7 @@ const router = express.Router();
 router.post("/login", login, errorHandler);
 router.post("/forgotPassword", forgotPassword, errorHandler);
 router.patch("/resetPassword/:token", resetPassword, errorHandler);
+router.get("/logout", logout);
 
 router
   .route("/")

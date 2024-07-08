@@ -43,7 +43,6 @@ const createSendToken = (
 
   res.status(statusCode).json({
     status: "success",
-    token,
     data: {
       user: { ...user, password: undefined },
     },
@@ -337,3 +336,12 @@ export const resetPassword = catchAsync(
     createSendToken(user, 200, res);
   }
 );
+export const logout = (req: Request, res: Response) => {
+  res.cookie("jwt", "loggedout", {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+  res.status(200).json({
+    status: "success",
+  });
+};
