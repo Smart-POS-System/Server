@@ -172,11 +172,19 @@ export const createUserByUser = catchAsync(
 
     const userRepository = AppDataSource.getRepository(User);
 
-    const user = await userRepository.findOne({
+    /*  const user = await userRepository.findOne({
       where: {
         email,
       },
-    });
+    }); */
+
+    const user = await userRepository
+      .createQueryBuilder("user")
+      .where("user.email = :email", { email })
+      .andWhere("user.username LIKE :tempUsername", {
+        tempUsername: "tempusername%",
+      })
+      .getOne();
 
     if (!user) {
       return next(new AppError("Please enter the correct email address", 404));
@@ -184,6 +192,7 @@ export const createUserByUser = catchAsync(
 
     user.password = await bcrypt.hash(password, 12);
     user.username = username;
+    user.passwordChangedAt = new Date();
 
     await userRepository.save(user);
 
@@ -194,5 +203,22 @@ export const createUserByUser = catchAsync(
         message: "Account created successfully",
       },
     });
+  }
+);
+
+export const getAllUsers = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userRepository = AppDataSource.getRepository(User);
+      const users = await userRepository.find();
+      res.status(200).json({
+        status: "success",
+        data: {
+          users,
+        },
+      });
+    } catch (err: any) {
+      return next(new AppError(err.message, 400));
+    }
   }
 );

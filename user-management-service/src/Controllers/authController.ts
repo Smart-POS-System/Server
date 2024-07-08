@@ -7,6 +7,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { promisify } from "util";
+import crypto from "crypto";
+import { sendMail } from "../Utils/userMail";
 
 dotenv.config({ path: "../../config.env" });
 
@@ -110,6 +112,7 @@ export const protect = catchAsync(
       );
     }
 
+    console.log("Token: ", token);
     // Verify token
     const jwtSecret = process.env.JWT_SECRET as string;
 
@@ -143,6 +146,7 @@ export const protect = catchAsync(
 
       // Grant access to protected route
       req.user = currentUser;
+      console.log("User: ", req.user);
       next();
     } catch (err) {
       return next(new AppError("Invalid token or token expired", 401));
@@ -214,7 +218,7 @@ export const restrictToCreate = (
   next();
 };
 
-exports.restrictTo = (...roles: any) => {
+export const restrictTo = (...roles: any) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
       return next(
@@ -230,3 +234,106 @@ exports.restrictTo = (...roles: any) => {
     next();
   };
 };
+
+const createPasswordResetToken = function (user: any) {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  user.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  user.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+  return resetToken;
+};
+
+export const forgotPassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userRepository = AppDataSource.getRepository(User);
+    const user = await userRepository.findOne({
+      where: {
+        email: req.body.email,
+      },
+    });
+    if (!user) {
+      return next(new AppError("There is no user with email address.", 404));
+    }
+
+    const resetToken = createPasswordResetToken(user);
+    await userRepository.save(user);
+    const resetURL = `${req.protocol}://${req.get(
+      "host"
+    )}/api/v1/users/resetPassword/${resetToken}`;
+
+    const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
+
+    try {
+      await sendMail({
+        email: req.body.email,
+        subject: "Password Reset (valid for 10 minutes)",
+        message,
+      });
+
+      res.status(200).json({
+        status: "success",
+        message: "Token sent to email!",
+      });
+    } catch (err: any) {
+      user.passwordResetToken = null;
+      user.passwordResetExpires = null;
+      await userRepository.save(user);
+
+      return next(
+        new AppError(
+          "There was an error sending the email. Try again later!",
+          500
+        )
+      );
+    }
+  }
+);
+
+export const resetPassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(req.params.token)
+      .digest("hex");
+
+    const userRepository = AppDataSource.getRepository(User);
+
+    const user = await userRepository
+      .createQueryBuilder("user")
+      .where("user.passwordResetToken = :hashedToken", { hashedToken })
+      .andWhere("user.passwordResetExpires > :currentDate", {
+        currentDate: new Date(Date.now()),
+      })
+      .getOne();
+
+    if (!user) {
+      return next(new AppError("Token is invalid or has expired", 400));
+    }
+
+    if (!req.body.password || !req.body.passwordConfirm) {
+      return next(
+        new AppError("Please provide password and passwordConfirm", 400)
+      );
+    }
+    if (req.body.password.length < 8) {
+      return next(
+        new AppError("Password should be at least 8 characters", 400)
+      );
+    }
+    if (req.body.password !== req.body.passwordConfirm) {
+      return next(new AppError("Passwords do not match", 400));
+    }
+
+    user.password = req.body.password;
+    user.passwordResetToken = null;
+    user.passwordResetExpires = null;
+    await userRepository.save(user);
+
+    createSendToken(user, 200, res);
+  }
+);
