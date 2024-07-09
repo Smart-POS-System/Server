@@ -1,4 +1,4 @@
-import { AppDataSource } from "../data-source";
+/*import { AppDataSource } from "../data-source";
 import { Role } from "../entity/Role";
 
 export async function insertRoles() {
@@ -18,3 +18,4 @@ export async function insertRoles() {
     );
   }
 }
+*/

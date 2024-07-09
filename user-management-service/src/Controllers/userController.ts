@@ -7,11 +7,20 @@ import { sendMail } from "../Utils/userMail";
 import AppError from "../Utils/appError";
 import catchAsync from "../Utils/catchAsync";
 import { AppDataSource } from "./../index";
+import { Employee } from "../entity/Employee";
+import { Role } from "../entity/Role";
+import {
+  lowerRole1,
+  lowerRole2,
+  roleHierarchy1,
+  roleHierarchy2,
+  roleHierarchy3,
+} from "../Utils/roleHierarchy";
 
 export const isUserExists = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userRepository = AppDataSource.getRepository(User);
+      const userRepository = AppDataSource.getRepository(Employee);
       const { email } = req.body;
       const user = await userRepository.findOne({
         where: {
@@ -29,17 +38,12 @@ export const isUserExists = catchAsync(
 );
 
 export const validateUser = [
-  body("firstName")
+  body("name")
     .isString()
-    .withMessage("First name must be a string")
+    .withMessage("User's name must be a string")
     .notEmpty()
-    .withMessage("First name is required"),
-  body("lastName")
-    .isString()
-    .withMessage("Last name must be a string")
-    .notEmpty()
-    .withMessage("Last name is required"),
-  body("role")
+    .withMessage("User's name is required"),
+  body("role_name")
     .isIn(validRoles)
     .withMessage(
       "Role must be one of Regional Manager, Inventory Manager, Inventory Supervisor, Store Manager, Store Supervisor, Cashier"
@@ -66,7 +70,7 @@ export const sendMailToUser = async (
   next: NextFunction
 ) => {
   const urlForUser = `${req.protocol}://${req.get("host")}/api/v1/createUser`;
-  const message = `You have been added to our POS System. Please click on the link below to set your username and password to complete your account. \n\n ${urlForUser} \n\n If you did not request this, please ignore this email.`;
+  const message = `You have been added to our POS System as a ${req.body.role_name}. Please click on the link below to set your username and password to complete your account. \n\n ${urlForUser} \n\n If you did not request this, please ignore this email.`;
 
   try {
     await sendMail({
@@ -88,27 +92,29 @@ export const sendMailToUser = async (
 export const createUserByAdmin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { firstName, lastName, email, role } = req.body;
+      const { name, email, role_name } = req.body;
 
-      const userRepository = AppDataSource.getRepository(User);
+      const userRepository = AppDataSource.getRepository(Employee);
+      const roleRepository = AppDataSource.getRepository(Role);
 
-      const tempUsername = `tempusername${Date.now()}${Math.floor(
-        Math.random()
-      )}`;
+      const role = await roleRepository.findOneBy({ role_name });
+
+      if (!role) {
+        return next(new AppError("Role not found", 400));
+      }
 
       const tempPassword = `tempPassword${Date.now()}${Math.floor(
-        Math.random()
+        Math.random() * 10000
       )}`;
-
-      const password = await bcrypt.hash(tempPassword, 12);
+      const hashedPassword = await bcrypt.hash(tempPassword, 12);
 
       const newUser = userRepository.create({
-        username: tempUsername,
-        password,
+        employee_name: name,
         email,
+        password: hashedPassword,
         role,
-        firstName,
-        lastName,
+        temporary: true,
+        is_active: false,
       });
 
       await userRepository.save(newUser);
@@ -117,7 +123,7 @@ export const createUserByAdmin = catchAsync(
         status: "success",
         data: {
           user: { ...newUser, password: undefined },
-          message: "Send email to user to set username and password",
+          message: "Sent email to user to set username and password",
         },
       });
     } catch (err: any) {
@@ -127,11 +133,6 @@ export const createUserByAdmin = catchAsync(
 );
 
 export const validateCreation = [
-  body("username")
-    .isString()
-    .withMessage("Username must be a string")
-    .notEmpty()
-    .withMessage("Username is required"),
   body("password")
     .isString()
     .withMessage("Password must be a string")
@@ -158,9 +159,11 @@ export const validateCreation = [
 
 export const createUserByUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { username, password, passwordConfirm, email } = req.body;
+    const { password, passwordConfirm, email } = req.body;
 
-    // Check that password and passwordConfirm are not null, are the same, and have a length greater than 8
+    if (password.startsWith("tempPassword")) {
+      return next(new AppError("Please set another word as the password", 400));
+    }
 
     if (password !== passwordConfirm) {
       return next(new AppError("Passwords do not match", 400));
@@ -170,33 +173,22 @@ export const createUserByUser = catchAsync(
       return next(new AppError("Password must be at least 8 characters", 400));
     }
 
-    const userRepository = AppDataSource.getRepository(User);
+    const userRepository = AppDataSource.getRepository(Employee);
 
     const user = await userRepository
       .createQueryBuilder("user")
       .where("user.email = :email", { email })
-      .andWhere("user.username LIKE :tempUsername", {
-        tempUsername: "tempusername%",
-      })
+      .andWhere("user.temporary = true")
       .getOne();
 
     if (!user) {
       return next(new AppError("Please enter the correct email address", 404));
     }
 
-    const isAlreadyTakenUsername = await userRepository.findOne({
-      where: {
-        username,
-      },
-    });
-
-    if (isAlreadyTakenUsername) {
-      return next(new AppError("Username is already taken", 400));
-    }
-
     user.password = await bcrypt.hash(password, 12);
-    user.username = username;
-    user.passwordChangedAt = new Date();
+    user.temporary = false;
+    user.is_active = true;
+    user.password_changed_at = new Date();
 
     await userRepository.save(user);
 
@@ -210,18 +202,25 @@ export const createUserByUser = catchAsync(
   }
 );
 
-export const getAllUsers = catchAsync(
+export const getUsers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userRepository = AppDataSource.getRepository(User);
-      const users = await userRepository.find();
+      const userRepository = AppDataSource.getRepository(Employee);
 
-      const usersData = users.map(({ password, ...rest }) => rest);
+      const allowedRoles = getCurrentUserRoleInfo(req);
+
+      const users = await userRepository
+        .createQueryBuilder("employee")
+        .leftJoinAndSelect("employee.role", "role")
+        .where("role.role_name IN (:...allowedRoles)", { allowedRoles })
+        .select(["employee.employee_name", "employee.email", "role.role_name"])
+        .getMany();
 
       res.status(200).json({
         status: "success",
+        length: users.length,
         data: {
-          users: usersData,
+          users,
         },
       });
     } catch (err: any) {
@@ -229,3 +228,68 @@ export const getAllUsers = catchAsync(
     }
   }
 );
+
+export const getOneUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userRepository = AppDataSource.getRepository(Employee);
+
+      const allowedRoles = getCurrentUserRoleInfo(req);
+      let query = userRepository
+        .createQueryBuilder("employee")
+        .leftJoinAndSelect("employee.role", "role")
+        .where("role.role_name IN (:...allowedRoles)", { allowedRoles })
+        .select(["employee.employee_name", "employee.email", "role.role_name"]);
+
+      if (req.params.id) {
+        query = query.andWhere("employee.employee_id = :employee_id", {
+          employee_id: req.params.id,
+        });
+      } else {
+        return next(new AppError("User not found", 400));
+      }
+
+      const user = await query.getOne();
+
+      if (!user) {
+        return next(
+          new AppError("You don't have access or user not found", 404)
+        );
+      }
+
+      res.status(200).json({
+        status: "success",
+        data: {
+          user,
+        },
+      });
+    } catch (err: any) {
+      return next(new AppError(err.message, 400));
+    }
+  }
+);
+
+const getCurrentUserRoleInfo = (req: Request) => {
+  if (!req.user || !req.user.role || !req.user.role.role_name) {
+    throw new Error("There is a problem with the logged-in user");
+  }
+
+  const currentUserRole = req.user.role.role_name;
+
+  let roleHierarchy: { [key: string]: number };
+
+  if (lowerRole1.includes(currentUserRole)) {
+    roleHierarchy = roleHierarchy2;
+  } else if (lowerRole2.includes(currentUserRole)) {
+    roleHierarchy = roleHierarchy3;
+  } else {
+    roleHierarchy = roleHierarchy1;
+  }
+
+  const currentUserRoleLevel = roleHierarchy[currentUserRole];
+  const allowedRoles = Object.entries(roleHierarchy)
+    .filter(([_, level]) => level >= currentUserRoleLevel)
+    .map(([role]) => role);
+
+  return allowedRoles;
+};

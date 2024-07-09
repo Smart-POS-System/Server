@@ -1,4 +1,4 @@
-import { AppDataSource } from "../data-source";
+/*import { AppDataSource } from "../data-source";
 import { Customer } from "../entity/Customer";
 
 export async function insertCustomers() {
@@ -24,4 +24,4 @@ export async function insertCustomers() {
       AppDataSource.manager.create(Customer, customer)
     );
   }
-}
+}*/

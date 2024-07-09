@@ -2,7 +2,8 @@ import express from "express";
 import {
   createUserByAdmin,
   createUserByUser,
-  getAllUsers,
+  getOneUser,
+  getUsers,
   isUserExists,
   sendMailToUser,
   validateCreation,
@@ -28,7 +29,7 @@ router.get("/logout", logout);
 
 router
   .route("/")
-  .get(protect, restrictTo("General Manager"), getAllUsers, errorHandler)
+  .get(protect, getUsers, errorHandler)
   .post(
     protect,
     isUserExists,
@@ -38,6 +39,8 @@ router
     createUserByAdmin,
     errorHandler
   );
+
+router.get("/:id", protect, getOneUser, errorHandler);
 
 router.post("/createUser", validateCreation, createUserByUser, errorHandler);
 

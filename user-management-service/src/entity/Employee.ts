@@ -4,7 +4,6 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
-  UpdateDateColumn,
 } from "typeorm";
 import { Role } from "./Role";
 
@@ -26,18 +25,18 @@ export class Employee {
   @JoinColumn({ name: "role_id" })
   role: Role;
 
-  @Column({ nullable: true })
+  @Column({ type: "boolean", nullable: true })
   is_active: boolean | null;
 
-  @Column({ nullable: true })
+  @Column({ type: "boolean", nullable: true })
   temporary: boolean | null;
 
-  @Column({ nullable: true })
+  @Column({ type: "timestamp", nullable: true })
   password_changed_at: Date | null;
 
-  @Column({ nullable: true })
+  @Column({ type: "text", nullable: true })
   password_reset_token: string | null;
 
-  @Column({ nullable: true })
+  @Column({ type: "timestamp", nullable: true })
   password_reset_expires: Date | null;
 }

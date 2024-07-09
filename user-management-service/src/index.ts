@@ -1,7 +1,9 @@
 import dotenv from "dotenv";
 import { DataSource } from "typeorm";
 import app from "./app";
-import { User } from "./Utils/database";
+import { Employee } from "./entity/Employee";
+import { Customer } from "./entity/Customer";
+import { Role } from "./entity/Role";
 
 process.on("uncaughtException", (err: Error) => {
   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
@@ -20,7 +22,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME,
   synchronize: true,
   logging: false,
-  entities: [User],
+  entities: [Employee, Customer, Role],
 });
 
 AppDataSource.initialize()

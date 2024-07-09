@@ -9,6 +9,7 @@ import dotenv from "dotenv";
 import { promisify } from "util";
 import crypto from "crypto";
 import { sendMail } from "../Utils/userMail";
+import { Employee } from "../entity/Employee";
 
 dotenv.config({ path: "../../config.env" });
 
@@ -27,6 +28,7 @@ const createSendToken = (
   res: Response
 ): void => {
   const token = signToken(user.email);
+
   const jwtCookieExpiresIn = Number(process.env.JWT_COOKIE_EXPIRES_IN_HOURS);
 
   const cookieOptions: { expires: Date; httpOnly: boolean; secure?: boolean } =
@@ -44,6 +46,7 @@ const createSendToken = (
   res.status(statusCode).json({
     status: "success",
     data: {
+      //  token,
       user: { ...user, password: undefined },
     },
   });
@@ -57,12 +60,12 @@ export const login = catchAsync(
       return next(new AppError("Please provide email and password!", 400));
     }
 
-    const userRepository = AppDataSource.getRepository(User);
-    const user = await userRepository.findOne({
-      where: {
-        email,
-      },
-    });
+    const userRepository = AppDataSource.getRepository(Employee);
+    const user = await userRepository
+      .createQueryBuilder("employee")
+      .leftJoinAndSelect("employee.role", "role")
+      .where("employee.email = :email", { email: email })
+      .getOne();
 
     if (!user || !(await correctPassword(password, user.password))) {
       return next(new AppError("Incorrect email or password", 401));
@@ -95,12 +98,13 @@ export const protect = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     let token: string | undefined;
 
-    if (
+    /*if (
       req.headers.authorization &&
       req.headers.authorization.startsWith("Bearer")
     ) {
       token = req.headers.authorization.split(" ")[1];
-    } else if (req.cookies.jwt) {
+    } else*/
+    if (req.cookies.jwt) {
       token = req.cookies.jwt;
     }
 
@@ -110,17 +114,19 @@ export const protect = catchAsync(
       );
     }
 
-    console.log("Token: ", token);
-
     const jwtSecret = process.env.JWT_SECRET as string;
 
     try {
       const decoded: any = await verifyToken(token, jwtSecret);
 
-      const userRepository = AppDataSource.getRepository(User);
-      const currentUser = await userRepository.findOne({
-        where: { email: decoded.email },
-      });
+      const userRepository = AppDataSource.getRepository(Employee);
+      const currentUser = await userRepository
+        .createQueryBuilder("employee")
+        .leftJoinAndSelect("employee.role", "role")
+        .where("employee.email = :email", { email: decoded.email })
+        .getOne();
+
+      console.log("Current User: ", currentUser);
 
       if (!currentUser) {
         return next(
@@ -132,7 +138,7 @@ export const protect = catchAsync(
       }
 
       // Checking whether user changed password after the token was issued
-      if (changedPasswordAfter(decoded.iat, currentUser.passwordChangedAt)) {
+      if (changedPasswordAfter(decoded.iat, currentUser.password_changed_at)) {
         return next(
           new AppError(
             "User recently changed password! Please log in again.",
@@ -143,7 +149,7 @@ export const protect = catchAsync(
 
       // Grant access to protected route
       req.user = currentUser;
-      console.log("User: ", req.user);
+      //  console.log("User: ", req.user);
       next();
     } catch (err) {
       return next(new AppError("Invalid token or token expired", 401));
@@ -203,11 +209,16 @@ export const restrictToCreate = (
   res: Response,
   next: NextFunction
 ) => {
-  if (!req.user || !req.body || !req.user.role || !req.body.role) {
+  if (
+    !req.user ||
+    !req.body ||
+    !req.user.role.role_name ||
+    !req.body.role_name
+  ) {
     return next(new AppError("Data is missing", 400));
   }
 
-  if (!isEligible(req.user.role, req.body.role)) {
+  if (!isEligible(req.user.role.role_name, req.body.role_name)) {
     return next(
       new AppError("You do not have permission to perform this action", 403)
     );
@@ -222,7 +233,7 @@ export const restrictTo = (...roles: any) => {
         new AppError("You are not logged in! Please log in to get access.", 401)
       );
     }
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(req.user.role.role_name)) {
       return next(
         new AppError("You do not have permission to perform this action", 403)
       );
@@ -235,19 +246,19 @@ export const restrictTo = (...roles: any) => {
 const createPasswordResetToken = function (user: any) {
   const resetToken = crypto.randomBytes(32).toString("hex");
 
-  user.passwordResetToken = crypto
+  user.password_reset_token = crypto
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
 
-  user.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
+  user.password_reset_expires = new Date(Date.now() + 10 * 60 * 1000);
 
   return resetToken;
 };
 
 export const forgotPassword = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const userRepository = AppDataSource.getRepository(User);
+    const userRepository = AppDataSource.getRepository(Employee);
     const user = await userRepository.findOne({
       where: {
         email: req.body.email,
@@ -277,8 +288,8 @@ export const forgotPassword = catchAsync(
         message: "Token sent to email!",
       });
     } catch (err: any) {
-      user.passwordResetToken = null;
-      user.passwordResetExpires = null;
+      user.password_reset_token = null;
+      user.password_reset_expires = null;
       await userRepository.save(user);
 
       return next(
@@ -298,12 +309,12 @@ export const resetPassword = catchAsync(
       .update(req.params.token)
       .digest("hex");
 
-    const userRepository = AppDataSource.getRepository(User);
+    const userRepository = AppDataSource.getRepository(Employee);
 
     const user = await userRepository
-      .createQueryBuilder("user")
-      .where("user.passwordResetToken = :hashedToken", { hashedToken })
-      .andWhere("user.passwordResetExpires > :currentDate", {
+      .createQueryBuilder("employee")
+      .where("employee.password_reset_token = :hashedToken", { hashedToken })
+      .andWhere("employee.password_reset_expires > :currentDate", {
         currentDate: new Date(Date.now()),
       })
       .getOne();
@@ -314,7 +325,7 @@ export const resetPassword = catchAsync(
 
     if (!req.body.password || !req.body.passwordConfirm) {
       return next(
-        new AppError("Please provide password and passwordConfirm", 400)
+        new AppError("Please provide password and confirm password", 400)
       );
     }
     if (req.body.password.length < 8) {
@@ -323,12 +334,14 @@ export const resetPassword = catchAsync(
       );
     }
     if (req.body.password !== req.body.passwordConfirm) {
-      return next(new AppError("Passwords do not match", 400));
+      return next(
+        new AppError("Password and confirm password do not match", 400)
+      );
     }
 
     user.password = req.body.password;
-    user.passwordResetToken = null;
-    user.passwordResetExpires = null;
+    user.password_reset_token = null;
+    user.password_reset_token = null;
     await userRepository.save(user);
 
     createSendToken(user, 200, res);
