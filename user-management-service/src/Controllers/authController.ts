@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import AppError from "../Utils/appError";
 import catchAsync from "../Utils/catchAsync";
 import { User } from "../Utils/database";
-import AppDataSource from "../index";
+import AppDataSource from "..";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";

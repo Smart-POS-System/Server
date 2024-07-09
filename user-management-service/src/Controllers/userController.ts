@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import AppDataSource from "./../index";
+import AppDataSource from "..";
 import { User } from "../Utils/database";
 import bcrypt from "bcryptjs";
 import { body, validationResult } from "express-validator";
