@@ -16,6 +16,7 @@ services: #define the containers to be run
       - PG_DB=postgres
     depends_on:
       - db
+      - user-srv
 
     develop:
       watch:

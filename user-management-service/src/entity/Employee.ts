@@ -27,6 +27,12 @@ export class Employee {
   role: Role;
 
   @Column({ nullable: true })
+  is_active: boolean | null;
+
+  @Column({ nullable: true })
+  temporary: boolean | null;
+
+  @Column({ nullable: true })
   password_changed_at: Date | null;
 
   @Column({ nullable: true })
