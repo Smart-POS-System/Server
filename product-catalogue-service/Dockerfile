@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Expose port 8080 to allow outside access
-EXPOSE 3001
+# EXPOSE 3001
 
 # Set environment variable NODE_ENV to 'production'
 # ENV NODE_ENV=production

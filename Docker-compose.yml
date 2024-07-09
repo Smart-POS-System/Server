@@ -1,12 +1,22 @@
-version: "3.8" #version of the docker compse
 services: #define the containers to be run
   product-srv:
+    container_name: product-service
     build:
       context: ./product-catalogue-service
       dockerfile: Dockerfile
-    # command: node --watch index.js
+    
     ports:
-      - "3001:3001"
+      - "3008:3000"
+    environment:
+      - DB_TYPE=postgres
+      - PG_HOST=db
+      - PG_PORT=5432
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres
+      - PG_DB=postgres
+    depends_on:
+      - db
+      - user-srv
 
     develop:
       watch:
@@ -20,12 +30,22 @@ services: #define the containers to be run
           action: sync
 
   user-srv:
+    container_name: user-service
     build:
       context: ./user-management-service
       dockerfile: Dockerfile
-    # command: node --watch index.js
+    
     ports:
-      - "3002:3002"
+      - "3009:3000"
+    environment:
+      - DB_TYPE=postgres
+      - PG_HOST=db
+      - PG_PORT=5432
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres
+      - PG_DB=postgres
+    depends_on:
+      - db
 
     develop:
       watch:
@@ -39,12 +59,56 @@ services: #define the containers to be run
           action: sync
 
   inventory-srv:
+    container_name: inventory-service
     build:
       context: ./inventory-service
       dockerfile: Dockerfile
-    # command: node --watch index.js
+    
     ports:
-      - "3003:3003"
+      - "3010:3000"
+    environment:
+      - DB_TYPE=postgres
+      - PG_HOST=db
+      - PG_PORT=5432
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres
+      - PG_DB=postgres
+    depends_on:
+      - db
+      - user-srv
+      - product-srv
+
+    develop:
+      watch:
+        - path: ./sales-and-payment-service/package.json
+          action: rebuild
+        - path: ./sales-and-payment-service/package-lock.json
+          action: rebuild
+
+        - path: ./sales-and-payment-service
+          target: /app
+          action: sync
+
+  sales-and-payment-srv:
+    container_name: sales-and-payment-service
+    build:
+      context: ./sales-and-payment-service
+      dockerfile: Dockerfile
+    
+    ports:
+      - "3011:3000"
+    environment:
+      - DB_TYPE=postgres
+      - PG_HOST=db
+      - PG_PORT=5432
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres
+      - PG_DB=postgres
+    depends_on:
+      - db
+      - user-srv
+      - product-srv
+      - inventory-srv
 
     develop:
       watch:
@@ -58,12 +122,13 @@ services: #define the containers to be run
           action: sync
 
   email-srv:
+    container_name: email-service
     build:
       context: ./email-service
       dockerfile: Dockerfile
-    # command: node --watch index.js
+    
     ports:
-      - "3004:3004"
+      - "3012:3000"
 
     develop:
       watch:
@@ -76,5 +141,18 @@ services: #define the containers to be run
           target: /app
           action: sync
 
+  db:
+    container_name: db
+    image: postgres:12
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    
+
 volumes:
-  test:
+  pgdata: {}

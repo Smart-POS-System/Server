@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import AppDataSource from "..";
 import { User } from "../Utils/database";
 import bcrypt from "bcryptjs";
 import { body, validationResult } from "express-validator";
@@ -7,6 +6,7 @@ import { validRoles } from "../Utils/roles";
 import { sendMail } from "../Utils/userMail";
 import AppError from "../Utils/appError";
 import catchAsync from "../Utils/catchAsync";
+import { AppDataSource } from "./../index";
 
 export const isUserExists = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
