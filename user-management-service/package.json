@@ -1,18 +1,23 @@
 {
-  "name": "user-service",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "type": "module",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon src/"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "express": "^4.19.2",
-    "nodemon": "^3.1.4"
-  }
+   "name": "typeorm-sample",
+   "version": "0.0.1",
+   "description": "Awesome project developed with TypeORM.",
+   "type": "commonjs",
+   "devDependencies": {
+      "@types/node": "^16.11.10",
+      "ts-node": "10.9.1",
+      "typescript": "5.5.3"
+   },
+   "dependencies": {
+      "axios": "^1.7.2",
+      "body-parser": "^1.19.1",
+      "express": "^4.17.2",
+      "pg": "^8.4.0",
+      "reflect-metadata": "^0.1.13",
+      "typeorm": "0.3.20"
+   },
+   "scripts": {
+      "start": "ts-node src/index.ts",
+      "typeorm": "typeorm-ts-node-commonjs"
+   }
 }
