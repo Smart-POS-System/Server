@@ -1,14 +1,11 @@
 import express from "express";
 import {
+  // createAdmin,
   createUserByAdmin,
   createUserByUser,
   getOneUser,
   getUsers,
-  isUserExists,
-  sendMailToUser,
-  validateCreation,
-  validateUser,
-} from "../Controllers/userController";
+} from "../Controllers/employeeController";
 import {
   forgotPassword,
   login,
@@ -19,6 +16,12 @@ import {
   restrictToCreate,
 } from "../Controllers/authController";
 import { errorHandler } from "../Controllers/errorController";
+import {
+  isUserExists,
+  sendMailToUser,
+  validateCreation,
+  validateUser,
+} from "../Middleware/employeeMiddlewares";
 
 const router = express.Router();
 
@@ -43,5 +46,7 @@ router
 router.get("/:id", protect, getOneUser, errorHandler);
 
 router.post("/createUser", validateCreation, createUserByUser, errorHandler);
+
+//router.post("/createAdmin", createAdmin);
 
 export { router as userRouter };

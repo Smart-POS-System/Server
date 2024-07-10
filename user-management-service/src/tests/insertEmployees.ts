@@ -1,4 +1,4 @@
-/*import { AppDataSource } from "../data-source";
+import { AppDataSource } from "../data-source";
 import { Employee } from "../entity/Employee";
 import { Role } from "../entity/Role";
 
@@ -102,4 +102,4 @@ export async function insertEmployees() {
       AppDataSource.manager.create(Employee, employeeData)
     );
   }
-}*/
+}

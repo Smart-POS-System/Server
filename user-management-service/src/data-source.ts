@@ -1,4 +1,4 @@
-/*import "reflect-metadata";
+import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { env } from "process";
 import { Role } from "./entity/Role";
@@ -23,4 +23,4 @@ export const AppDataSource = new DataSource({
   entities: [Role, Customer, Employee],
   migrations: [],
   subscribers: [],
-});*/
+});
