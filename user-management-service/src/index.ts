@@ -1,3 +1,68 @@
+import dotenv from "dotenv";
+import { DataSource } from "typeorm";
+import app from "./app";
+import { Employee } from "./entity/Employee";
+import { Customer } from "./entity/Customer";
+import { Role } from "./entity/Role";
+//import { insertRoles } from "./tests/insertRoles";
+//import { insertEmployees } from "./tests/insertEmployees";
+
+process.on("uncaughtException", (err: Error) => {
+  console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
+  console.log(err.name, err.message);
+  process.exit(1);
+});
+
+dotenv.config({ path: "./config.env" });
+
+//For local database
+/* export const AppDataSource = new DataSource({
+  type: process.env.DB_TYPE as any,
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT || "", 10),
+  username: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  synchronize: true,
+  logging: false,
+  entities: [Employee, Customer, Role],
+}); */
+
+//For remote database
+export const AppDataSource = new DataSource({
+  type: process.env.DB_TYPE as any,
+  host: process.env.PG_HOST,
+  port: parseInt(process.env.PG_PORT || "", 10),
+  username: process.env.PG_USER,
+  password: process.env.PG_PASSWORD,
+  database: process.env.PG_DB,
+  synchronize: true,
+  logging: false,
+  entities: [Employee, Customer, Role],
+});
+
+AppDataSource.initialize()
+  .then(() => {
+    console.log("Data Source has been initialized!");
+  })
+  .catch((err) => {
+    console.error("Error during Data Source initialization", err);
+  });
+
+const port = process.env.PORT || 3000;
+const server = app.listen(port, () => {
+  console.log(`App running on port ${port}...`);
+});
+
+process.on("unhandledRejection", (err: Error) => {
+  console.log("UNHANDLED REJECTION! 💥 Shutting down...");
+  console.log(err.name, err.message);
+  server.close(() => {
+    process.exit(1);
+  });
+});
+
+/*export default AppDataSource;
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import { Request, Response } from "express";
@@ -55,4 +120,4 @@ AppDataSource.initialize()
       "Express server has started on port 3000. Open http://localhost:3000/users to see results"
     );
   })
-  .catch((error) => console.log(error));
+  .catch((error) => console.log(error));*/

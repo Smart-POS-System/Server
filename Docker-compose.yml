@@ -4,7 +4,7 @@ services: #define the containers to be run
     build:
       context: ./product-catalogue-service
       dockerfile: Dockerfile
-    
+
     ports:
       - "3008:3000"
     environment:
@@ -16,6 +16,7 @@ services: #define the containers to be run
       - PG_DB=postgres
     depends_on:
       - db
+      - user-srv
 
     develop:
       watch:
@@ -33,7 +34,7 @@ services: #define the containers to be run
     build:
       context: ./user-management-service
       dockerfile: Dockerfile
-    
+
     ports:
       - "3009:3000"
     environment:
@@ -62,7 +63,7 @@ services: #define the containers to be run
     build:
       context: ./inventory-service
       dockerfile: Dockerfile
-    
+
     ports:
       - "3010:3000"
     environment:
@@ -93,7 +94,7 @@ services: #define the containers to be run
     build:
       context: ./sales-and-payment-service
       dockerfile: Dockerfile
-    
+
     ports:
       - "3011:3000"
     environment:
@@ -125,7 +126,7 @@ services: #define the containers to be run
     build:
       context: ./email-service
       dockerfile: Dockerfile
-    
+
     ports:
       - "3012:3000"
 
@@ -144,14 +145,13 @@ services: #define the containers to be run
     container_name: db
     image: postgres:12
     ports:
-      - "5432:5432"
+      - "5430:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
-    
 
 volumes:
   pgdata: {}
