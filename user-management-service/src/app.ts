@@ -1,7 +1,9 @@
 import express from "express";
-import { userRouter } from "./Routes/employeeRoutes";
 import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
+import xss from "xss-clean";
+import { userRouter } from "./Routes/employeeRoutes";
+import { customerRouter } from "./Routes/customerRoutes";
 
 const app = express();
 
@@ -16,6 +18,9 @@ const limiter = rateLimit({
 });
 app.use("/api", limiter);
 
+app.use(xss());
+
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/customers", customerRouter);
 
 export default app;

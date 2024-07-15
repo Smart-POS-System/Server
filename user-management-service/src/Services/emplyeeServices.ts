@@ -1,5 +1,6 @@
 import { Employee } from "../entity/Employee";
-import { AppDataSource } from "./../data-source";
+//import { AppDataSource } from "./../data-source";
+import { AppDataSource } from "../index";
 import bcrypt from "bcryptjs";
 
 export const createUser = async (name: string, email: string, role: string) => {
@@ -84,4 +85,41 @@ export const getOneUser = async (id: number, allowedRoles: string[]) => {
     .getOne();
 
   return user;
+};
+
+export const updateOneUser = async (
+  id: number,
+  allowedRoles: string[],
+  data: any
+) => {
+  const userRepository = AppDataSource.getRepository(Employee);
+  const user = await userRepository
+    .createQueryBuilder("employee")
+    .where("employee.role IN (:...allowedRoles)", { allowedRoles })
+    .where("employee.employee_id = :id", { id })
+    .getOne();
+
+  if (!user) {
+    return null;
+  }
+
+  userRepository.merge(user, data);
+  await userRepository.save(user);
+
+  return user;
+};
+
+export const deleteOneUser = async (id: number) => {
+  const userRepository = AppDataSource.getRepository(Employee);
+  const user = await userRepository.findOne({
+    where: { employee_id: id },
+  });
+
+  if (!user) {
+    return false;
+  }
+
+  user.is_active = false;
+  await userRepository.save(user);
+  return true;
 };

@@ -5,6 +5,8 @@ import {
   updatePasswordByUser,
   getUser,
   getUsers,
+  updateUser,
+  deleteUser,
 } from "../Controllers/employeeController";
 import {
   forgotPassword,
@@ -43,7 +45,11 @@ router
     errorHandler
   );
 
-router.get("/:id", protect, getUser, errorHandler);
+router
+  .route("/:id")
+  .get(protect, getUser, errorHandler)
+  .patch(protect, validateUser, updateUser, errorHandler)
+  .delete(protect, restrictTo("General Manager"), deleteUser, errorHandler);
 
 router.post(
   "/updatePassword",

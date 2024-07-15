@@ -5,9 +5,11 @@ import catchAsync from "../Utils/catchAsync";
 import { Employee } from "../entity/Employee";
 import {
   createUser,
+  deleteOneUser,
   getAllUsers,
   getOneUser,
   getUserByEmailAndCurrentPassword,
+  updateOneUser,
   updateUserPassword,
 } from "../Services/emplyeeServices";
 import { getCurrentUserRoleInfo } from "../Utils/getUserInfo";
@@ -111,6 +113,60 @@ export const getUser = catchAsync(
         data: {
           user,
         },
+      });
+    } catch (err: any) {
+      return next(new AppError(err.message, 400));
+    }
+  }
+);
+
+export const updateUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const { name, email, role } = req.body;
+      const allowedRoles = getCurrentUserRoleInfo(req.user);
+
+      const user = await updateOneUser(parseInt(id), allowedRoles, {
+        name,
+        email,
+        role,
+      });
+
+      if (!user) {
+        return next(
+          new AppError("You don't have access or user not found", 404)
+        );
+      }
+
+      res.status(200).json({
+        status: "success",
+        data: {
+          user,
+        },
+      });
+    } catch (err: any) {
+      return next(new AppError(err.message, 400));
+    }
+  }
+);
+
+export const deleteUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+
+      const status = await deleteOneUser(parseInt(id));
+
+      if (!status) {
+        return next(
+          new AppError("You don't have access or user not found", 404)
+        );
+      }
+
+      res.status(200).json({
+        status: "success",
+        message: "User account deactivated successfully",
       });
     } catch (err: any) {
       return next(new AppError(err.message, 400));

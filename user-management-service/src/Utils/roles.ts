@@ -1,8 +1,11 @@
+import { UserRole } from "../enums/role.enum";
+
 export const validRoles: string[] = [
-  "Regional Manager",
-  "Inventory Manager",
-  "Inventory Supervisor",
-  "Store Manager",
-  "Store Supervisor",
-  "Cashier",
+  UserRole.GeneralManager,
+  UserRole.RegionalManager,
+  UserRole.InventoryManager,
+  UserRole.InventorySupervisor,
+  UserRole.StoreManager,
+  UserRole.StoreSupervisor,
+  UserRole.Cashier,
 ];

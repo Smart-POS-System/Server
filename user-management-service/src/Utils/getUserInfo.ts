@@ -57,7 +57,7 @@ export const getCurrentUserRoleInfo = (request: any) => {
 
   const currentUserRoleLevel = roleHierarchy[currentUserRole];
   const allowedRoles = Object.entries(roleHierarchy)
-    .filter(([_, level]) => level >= currentUserRoleLevel)
+    .filter(([_, level]) => level > currentUserRoleLevel)
     .map(([role]) => role);
 
   return allowedRoles;
