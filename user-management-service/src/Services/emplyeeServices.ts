@@ -1,33 +1,87 @@
-import { NextFunction, Request, Response } from "express";
-import {
-  lowerRole1,
-  lowerRole2,
-  roleHierarchy1,
-  roleHierarchy2,
-  roleHierarchy3,
-} from "../Utils/roleHierarchy";
+import { Employee } from "../entity/Employee";
+import { AppDataSource } from "./../data-source";
+import bcrypt from "bcryptjs";
 
-export const getCurrentUserRoleInfo = (req: Request) => {
-  if (!req.user || !req.user.role || !req.user.role.role_name) {
-    throw new Error("There is a problem with the logged-in user");
+export const createUser = async (name: string, email: string, role: string) => {
+  const userRepository = AppDataSource.getRepository(Employee);
+  const defaultPassword = `POS${email}`;
+  const hashedPassword = await bcrypt.hash(defaultPassword, 12);
+
+  const newUser = userRepository.create({
+    employee_name: name,
+    email,
+    password: hashedPassword,
+    role,
+    temporary: true,
+    is_active: true,
+  });
+
+  await userRepository.save(newUser);
+  return newUser;
+};
+
+export const getUserByEmailAndCurrentPassword = async (
+  email: string,
+  currentPassword: string
+) => {
+  const userRepository = AppDataSource.getRepository(Employee);
+
+  const user = await userRepository.findOne({
+    where: { email },
+  });
+
+  if (user) {
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+    if (isPasswordValid) {
+      return user;
+    }
   }
 
-  const currentUserRole = req.user.role.role_name;
+  return null;
+};
 
-  let roleHierarchy: { [key: string]: number };
+export const updateUserPassword = async (user: any, password: string) => {
+  const userRepository = AppDataSource.getRepository(Employee);
 
-  if (lowerRole1.includes(currentUserRole)) {
-    roleHierarchy = roleHierarchy2;
-  } else if (lowerRole2.includes(currentUserRole)) {
-    roleHierarchy = roleHierarchy3;
-  } else {
-    roleHierarchy = roleHierarchy1;
-  }
+  user.password = await bcrypt.hash(password, 12);
+  user.temporary = false;
+  user.password_changed_at = new Date();
 
-  const currentUserRoleLevel = roleHierarchy[currentUserRole];
-  const allowedRoles = Object.entries(roleHierarchy)
-    .filter(([_, level]) => level >= currentUserRoleLevel)
-    .map(([role]) => role);
+  await userRepository.save(user);
+  return user;
+};
 
-  return allowedRoles;
+export const getAllUsers = async (allowedRoles: string[]) => {
+  const userRepository = AppDataSource.getRepository(Employee);
+  const users = await userRepository
+    .createQueryBuilder("employee")
+    .where("employee.role IN (:...allowedRoles)", { allowedRoles })
+    .select([
+      "employee.employee_id, employee.employee_name",
+      "employee.email",
+      "employee.role",
+    ])
+    .getMany();
+
+  return users;
+};
+
+export const getOneUser = async (id: number, allowedRoles: string[]) => {
+  const userRepository = AppDataSource.getRepository(Employee);
+  const user = await userRepository
+    .createQueryBuilder("employee")
+    .where("employee.role IN (:...allowedRoles)", { allowedRoles })
+    .where("employee.employee_id = :id", { id })
+    .select([
+      "employee.employee_id",
+      "employee.employee_name",
+      "employee.email",
+      "employee.role",
+    ])
+    .getOne();
+
+  return user;
 };

@@ -1,11 +1,6 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-} from "typeorm";
-import { Role } from "./Role";
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+
+import { UserRole } from "../enums/role.enum";
 
 @Entity()
 export class Employee {
@@ -21,9 +16,8 @@ export class Employee {
   @Column({ default: "12345678" })
   password: string;
 
-  @ManyToOne(() => Role, (role) => role.employees)
-  @JoinColumn({ name: "role_id" })
-  role: Role;
+  @Column({ type: "enum", enum: UserRole })
+  role: string;
 
   @Column({ type: "boolean", nullable: true })
   is_active: boolean | null;

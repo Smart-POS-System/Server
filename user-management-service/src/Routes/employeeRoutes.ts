@@ -2,8 +2,8 @@ import express from "express";
 import {
   // createAdmin,
   createUserByAdmin,
-  createUserByUser,
-  getOneUser,
+  updatePasswordByUser,
+  getUser,
   getUsers,
 } from "../Controllers/employeeController";
 import {
@@ -26,7 +26,7 @@ import {
 const router = express.Router();
 
 router.post("/login", login, errorHandler);
-router.post("/forgotPassword", forgotPassword, errorHandler);
+router.post("/forgotPassword", protect, forgotPassword, errorHandler);
 router.patch("/resetPassword/:token", resetPassword, errorHandler);
 router.get("/logout", logout);
 
@@ -35,18 +35,24 @@ router
   .get(protect, getUsers, errorHandler)
   .post(
     protect,
-    isUserExists,
     validateUser,
+    isUserExists,
     restrictToCreate,
     sendMailToUser,
     createUserByAdmin,
     errorHandler
   );
 
-router.get("/:id", protect, getOneUser, errorHandler);
+router.get("/:id", protect, getUser, errorHandler);
 
-router.post("/createUser", validateCreation, createUserByUser, errorHandler);
+router.post(
+  "/updatePassword",
+  protect,
+  validateCreation,
+  updatePasswordByUser,
+  errorHandler
+);
 
-//router.post("/createAdmin", createAdmin);
+//router.post("/createAdmin", createAdmin, errorHandler);
 
 export { router as userRouter };

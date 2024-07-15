@@ -4,28 +4,7 @@ import { validRoles } from "../Utils/roles";
 import { sendMail } from "../Utils/userMail";
 import AppError from "../Utils/appError";
 import catchAsync from "../Utils/catchAsync";
-import { AppDataSource } from "../index";
-import { Employee } from "../entity/Employee";
-
-export const isUserExists = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const userRepository = AppDataSource.getRepository(Employee);
-      const { email } = req.body;
-      const user = await userRepository.findOne({
-        where: {
-          email: email,
-        },
-      });
-      if (user) {
-        next(new AppError("User already exists", 404));
-      }
-      next();
-    } catch (err: any) {
-      return next(new AppError(err.message, 400));
-    }
-  }
-);
+import { isUserExist } from "../Services/authServices";
 
 export const validateUser = [
   body("name")
@@ -33,7 +12,7 @@ export const validateUser = [
     .withMessage("User's name must be a string")
     .notEmpty()
     .withMessage("User's name is required"),
-  body("role_name")
+  body("role")
     .isIn(validRoles)
     .withMessage(
       "Role must be one of Regional Manager, Inventory Manager, Inventory Supervisor, Store Manager, Store Supervisor, Cashier"
@@ -54,18 +33,32 @@ export const validateUser = [
   }),
 ];
 
+export const isUserExists = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const user = await isUserExist(req.body.email);
+      if (user) {
+        next(new AppError("User already exists", 404));
+      }
+      next();
+    } catch (err: any) {
+      return next(new AppError(err.message, 400));
+    }
+  }
+);
+
 export const sendMailToUser = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const urlForUser = `${req.protocol}://${req.get("host")}/api/v1/createUser`;
-  const message = `You have been added to our POS System as a ${req.body.role_name}. Please click on the link below to set your username and password to complete your account. \n\n ${urlForUser} \n\n If you did not request this, please ignore this email.`;
+  const defaultPassword = `POS${req.body.email}`;
+  const message = `You have been added to our POS System as a ${req.body.role}. Your default password is ${defaultPassword}. MAKE SURE TO UPDATE THIS DEFAULT PASSWORD ONCE YOU LOGGED IN. If you did not request this, please ignore this email.`;
 
   try {
     await sendMail({
       email: req.body.email,
-      subject: "Complete your registration!",
+      subject: "Congratulations! You have been added to our POS System",
       message,
     });
   } catch (err: any) {
@@ -80,6 +73,11 @@ export const sendMailToUser = async (
 };
 
 export const validateCreation = [
+  body("currentPassword")
+    .isString()
+    .withMessage("Password must be a string")
+    .notEmpty()
+    .withMessage("Current Password is required"),
   body("password")
     .isString()
     .withMessage("Password must be a string")
@@ -90,11 +88,11 @@ export const validateCreation = [
     .withMessage("Password Confirmation must be a string")
     .notEmpty()
     .withMessage("Password Confirmation is required"),
-  body("email")
+  /* body("email")
     .isEmail()
     .withMessage("Email must be a valid email address")
     .notEmpty()
-    .withMessage("Email is required"),
+    .withMessage("Email is required"),*/
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

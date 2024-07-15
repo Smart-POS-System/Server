@@ -4,6 +4,7 @@ import app from "./app";
 import { Employee } from "./entity/Employee";
 import { Customer } from "./entity/Customer";
 import { Role } from "./entity/Role";
+import { AppDataSource } from "./data-source";
 //import { insertRoles } from "./tests/insertRoles";
 //import { insertEmployees } from "./tests/insertEmployees";
 
@@ -16,7 +17,7 @@ process.on("uncaughtException", (err: Error) => {
 dotenv.config({ path: "./config.env" });
 
 //For local database
-/* export const AppDataSource = new DataSource({
+/*export const AppDataSource = new DataSource({
   type: process.env.DB_TYPE as any,
   host: process.env.DB_HOST,
   port: parseInt(process.env.DB_PORT || "", 10),
@@ -25,11 +26,11 @@ dotenv.config({ path: "./config.env" });
   database: process.env.DB_NAME,
   synchronize: true,
   logging: false,
-  entities: [Employee, Customer, Role],
-}); */
+  entities: [Employee, Customer],
+});*/
 
 //For remote database
-export const AppDataSource = new DataSource({
+/*export const AppDataSource = new DataSource({
   type: process.env.DB_TYPE as any,
   host: process.env.PG_HOST,
   port: parseInt(process.env.PG_PORT || "", 10),
@@ -39,7 +40,7 @@ export const AppDataSource = new DataSource({
   synchronize: true,
   logging: false,
   entities: [Employee, Customer, Role],
-});
+});*/
 
 AppDataSource.initialize()
   .then(() => {

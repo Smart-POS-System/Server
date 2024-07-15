@@ -2,16 +2,34 @@ import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import { promisify } from "util";
 import crypto from "crypto";
+import { AppDataSource } from "./../data-source";
+import { Employee } from "../entity/Employee";
+import { UserRole } from "../enums/role.enum";
+import { sendMail } from "../Utils/userMail";
 
 dotenv.config({ path: "../../config.env" });
 
-export const signToken = (email: string): string => {
+export const isUserExist = async (email: string) => {
+  const userRepository = AppDataSource.getRepository(Employee);
+  const user = await userRepository.findOne({
+    where: { email },
+  });
+  return user;
+};
+
+export const signToken = (user: any): string => {
   const jwtSecret = process.env.JWT_SECRET as string;
   const jwtExpiresIn = process.env.JWT_EXPIRES_IN as string;
 
-  return jwt.sign({ email }, jwtSecret, {
+  const payload = {
+    id: user.employee_id,
+    name: user.employee_name,
+    email: user.email,
+    role: user.role,
+  };
+
+  return jwt.sign(payload, jwtSecret, {
     expiresIn: jwtExpiresIn,
   });
 };
@@ -20,8 +38,8 @@ export const createSendToken = (
   user: any,
   statusCode: number,
   res: Response
-): void => {
-  const token = signToken(user.email);
+): any => {
+  const token = signToken(user);
 
   const jwtCookieExpiresIn = Number(process.env.JWT_COOKIE_EXPIRES_IN_HOURS);
 
@@ -37,13 +55,7 @@ export const createSendToken = (
 
   res.cookie("jwt", token, cookieOptions);
 
-  res.status(statusCode).json({
-    status: "success",
-    data: {
-      //  token,
-      user: { ...user, password: undefined },
-    },
-  });
+  return token;
 };
 
 export const correctPassword = async function (
@@ -77,19 +89,19 @@ export const changedPasswordAfter = function (
   return false;
 };
 
-export const isEligible = (userRole: string, role: string): boolean => {
+export const isEligible = (userRole: any, role: any): boolean => {
   const roles1 = [
-    "General Manager",
-    "Regional Manager",
-    "Store Manager",
-    "Store Supervisor",
-    "Cashier",
+    UserRole.GeneralManager,
+    UserRole.RegionalManager,
+    UserRole.StoreManager,
+    UserRole.StoreSupervisor,
+    UserRole.Cashier,
   ];
   const roles2 = [
-    "General Manager",
-    "Regional Manager",
-    "Inventory Manager",
-    "Inventory Supervisor",
+    UserRole.GeneralManager,
+    UserRole.RegionalManager,
+    UserRole.InventoryManager,
+    UserRole.InventorySupervisor,
   ];
 
   const roles =
@@ -112,7 +124,9 @@ export const isEligible = (userRole: string, role: string): boolean => {
   return userRoleIndex < roleIndex;
 };
 
-export const createPasswordResetToken = function (user: any) {
+export const createPasswordResetToken = async function (user: any) {
+  const userRepository = AppDataSource.getRepository(Employee);
+
   const resetToken = crypto.randomBytes(32).toString("hex");
 
   user.password_reset_token = crypto
@@ -121,6 +135,52 @@ export const createPasswordResetToken = function (user: any) {
     .digest("hex");
 
   user.password_reset_expires = new Date(Date.now() + 10 * 60 * 1000);
+  await userRepository.save(user);
 
   return resetToken;
+};
+
+export const resetToDefault = async (user: any) => {
+  const userRepository = AppDataSource.getRepository(Employee);
+  user.password_reset_token = null;
+  user.password_reset_expires = null;
+  await userRepository.save(user);
+};
+
+export const checkForUserToResetPassword = async (hashedToken: string) => {
+  const userRepository = AppDataSource.getRepository(Employee);
+
+  const user = await userRepository
+    .createQueryBuilder("employee")
+    .where("employee.password_reset_token = :hashedToken", { hashedToken })
+    .andWhere("employee.password_reset_expires > :currentDate", {
+      currentDate: new Date(Date.now()),
+    })
+    .getOne();
+
+  return user;
+};
+
+export const saveNewPassword = async (user: any, password: string) => {
+  const userRepository = AppDataSource.getRepository(Employee);
+  user.password = password;
+  user.password_reset_token = null;
+  user.password_reset_token = null;
+  await userRepository.save(user);
+};
+
+export const sendEmailToUser = async (
+  resetToken: string,
+  protocol: string,
+  host: string | undefined,
+  email: string
+) => {
+  const resetURL = `${protocol}://${host}/api/v1/users/resetPassword/${resetToken}`;
+  const message = `Forgot your password? Go to this link and enter your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
+
+  await sendMail({
+    email,
+    subject: "Password Reset (valid for 10 minutes)",
+    message,
+  });
 };
