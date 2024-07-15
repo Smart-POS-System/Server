@@ -44,10 +44,10 @@ AppDataSource.initialize()
     app.listen(3000);
 
     // insert products for testing
-    await insertProducts();
+    // await insertProducts();
 
     // insert items for testing
-    await insertItems();
+    // await insertItems();
 
     console.log(
       "Express server has started on port 3000. Open http://localhost:3000/users to see results"

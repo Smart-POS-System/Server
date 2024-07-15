@@ -141,6 +141,38 @@ services: #define the containers to be run
           target: /app
           action: sync
 
+  migration-srv:
+    container_name: migration-service
+    build:
+      context: ./migration-service
+      dockerfile: Dockerfile
+
+    command: ["npm","run","migration:run"]
+
+    ports:
+      - "3013:3000"
+    environment:
+      - DB_TYPE=postgres
+      - PG_HOST=db
+      - PG_PORT=5432
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres
+      - PG_DB=postgres
+    depends_on:
+      - db
+      - user-srv
+
+    develop:
+      watch:
+        - path: ./migration-service/package.json
+          action: rebuild
+        - path: ./migration-service/package-lock.json
+          action: rebuild
+
+        - path: ./migration-service
+          target: /app
+          action: sync
+
   db:
     container_name: db
     image: postgres:12
