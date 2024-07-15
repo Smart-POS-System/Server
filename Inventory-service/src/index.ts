@@ -51,26 +51,26 @@ AppDataSource.initialize()
     app.listen(3000);
 
     // insert new regions for test
-    await insertRegions();
+    // await insertRegions();
 
     // insert new stores for test
-    await insertStores();
+    // await insertStores();
 
     // insert cashiers for testing
-    await insertCashiers();
+    // await insertCashiers();
 
     // insert store supervisors for testing
-    await insertStoreSupervisors();
+    // await insertStoreSupervisors();
 
     // insert inventory for testing
-    await insertInventory();
+    // await insertInventory();
 
     // insert inventory supervisors for testing
-    await insertInventorySupervisors();
+    // await insertInventorySupervisors();
 
     // insert inventory-warehouse and store stocks for testing
-    await insertInventoryStocks();
-    await insertStoreStocks();
+    // await insertInventoryStocks();
+    // await insertStoreStocks();
 
     console.log(
       "Express server has started on port 3000. Open http://localhost:3000/users to see results"
