@@ -42,11 +42,11 @@ AppDataSource.initialize()
     app.listen(3000);
 
     // insert new bills and bill-items for test
-    await insertBills();
-    console.log("Done with bills");
+    // await insertBills();
+    // console.log("Done with bills");
 
-    await insertBillItems();
-    console.log("Done with bill items");
+    // await insertBillItems();
+    // console.log("Done with bill items");
 
     console.log(
       "Express server has started on port 3000. Open http://localhost:3000/users to see results"
