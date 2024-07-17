@@ -3,18 +3,21 @@ import { DataSource } from "typeorm";
 import { env } from "process";
 
 // Import TypeORM entities
-import { Inventory } from "./entity/Inventory";
-import { InventoryStock } from "./entity/InventoryStock";
-import { InventorySupervisor } from "./entity/InventorySupervisor";
-import { Item } from "./entity/Item";
-import { Product } from "./entity/Product";
-import { Region } from "./entity/Region";
-import { Store } from "./entity/Store";
-import { StoreCashier } from "./entity/StoreCashier";
-import { StoreStock } from "./entity/StoreStock";
-import { StoreSupervisor } from "./entity/StoreSupervisor";
-import { Employee } from "./entity/Employee";
-import { Role } from "./entity/Role";
+import { Regions } from "./entities/Regions";
+import { Units } from "./entities/Units";
+import { Unit_Stocks } from "./entities/Unit_Stocks";
+// import { Inventory } from "./entity/Inventory";
+// import { InventoryStock } from "./entity/InventoryStock";
+// import { InventorySupervisor } from "./entity/InventorySupervisor";
+// import { Item } from "./entity/Item";
+// import { Product } from "./entity/Product";
+// import { Region } from "./entity/Region";
+// import { Store } from "./entity/Store";
+// import { StoreCashier } from "./entity/StoreCashier";
+// import { StoreStock } from "./entity/StoreStock";
+// import { StoreSupervisor } from "./entity/StoreSupervisor";
+// import { Employee } from "./entity/Employee";
+// import { Role } from "./entity/Role";
 
 const db_host = env.PG_HOST;
 const db_port = parseInt(env.PG_PORT);
@@ -32,18 +35,9 @@ export const AppDataSource = new DataSource({
   synchronize: true,
   logging: false,
   entities: [
-    Employee,
-    Inventory,
-    Role,
-    InventoryStock,
-    InventorySupervisor,
-    Item,
-    Product,
-    Region,
-    Store,
-    StoreCashier,
-    StoreStock,
-    StoreSupervisor,
+    Regions,
+    Units,
+    Unit_Stocks,
   ],
   migrations: [],
   subscribers: [],

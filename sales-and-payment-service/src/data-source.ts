@@ -1,16 +1,17 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { env } from "process";
-import { Bill } from "./entity/Bill";
-import { BillItem } from "./entity/BillItem";
-import { Customer } from "./entity/Customer";
-import { Employee } from "./entity/Employee";
-import { Item } from "./entity/Item";
-import { Product } from "./entity/Product";
-import { Region } from "./entity/Region";
-import { Store } from "./entity/Store";
-import { Role } from "./entity/Role";
-import { StoreCashier } from "./entity/StoreCashier";
+// import { Bill } from "./entity/Bill";
+// import { BillItem } from "./entity/BillItem";
+// import { Customer } from "./entity/Customer";
+// import { Employee } from "./entity/Employee";
+// import { Item } from "./entity/Item";
+// import { Product } from "./entity/Product";
+// import { Region } from "./entity/Region";
+// import { Store } from "./entity/Store";
+// import { Role } from "./entity/Role";
+// import { StoreCashier } from "./entity/StoreCashier";
+import { Bills } from "./entities/Bills";
 
 const db_host = env.PG_HOST;
 const db_port = parseInt(env.PG_PORT);
@@ -27,18 +28,7 @@ export const AppDataSource = new DataSource({
   database: db_name,
   synchronize: true,
   logging: false,
-  entities: [
-    Bill,
-    BillItem,
-    Customer,
-    Employee,
-    Item,
-    Product,
-    Region,
-    Store,
-    Role,
-    StoreCashier,
-  ],
+  entities: [Bills],
   migrations: [],
   subscribers: [],
 });

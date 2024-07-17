@@ -1,9 +1,12 @@
+import "reflect-metadata";
 import dotenv from "dotenv";
 import { DataSource } from "typeorm";
 import app from "./app";
-import { Employee } from "./entity/Employee";
+import { Employees } from "./entities/Employees";
+import { Customers } from "./entities/Customers";
 import { Customer } from "./entity/Customer";
-import { Role } from "./entity/Role";
+
+// import { Roles } from "./enums/roles.enum";
 //import { insertRoles } from "./tests/insertRoles";
 //import { insertEmployees } from "./tests/insertEmployees";
 
@@ -36,9 +39,10 @@ export const AppDataSource = new DataSource({
   username: process.env.PG_USER,
   password: process.env.PG_PASSWORD,
   database: process.env.PG_DB,
-  synchronize: true,
+  synchronize: false,
   logging: false,
-  entities: [Employee, Customer, Role],
+  // entities: [Employees, Customers],
+  entities: [Customer],
 });
 
 AppDataSource.initialize()
