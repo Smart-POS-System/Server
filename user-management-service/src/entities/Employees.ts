@@ -9,10 +9,10 @@ import {
     JoinColumn,
   } from "typeorm";
   import { Roles } from "../enums/roles.enum";
-  import { Regions } from "./foreign-entities/Regions";
-  import { Units } from "./foreign-entities/Units";
-  import { Bills } from "./foreign-entities/Bills";
-  import { Unit_Stocks } from "./foreign-entities/Unit_Stocks";
+  import { Regions } from "./Regions";
+  import { Units } from "./Units";
+  import { Bills } from "./Bills";
+  import { Unit_Stocks } from "./Unit_Stocks";
   
   @Entity()
   export class Employees {
@@ -28,32 +28,32 @@ import {
     @Column({ default: "12345678" })
     password: string;
   
-    // @Column({
-        // type: "enum",
-        // enum: Roles,
-        // default: Roles.CASHIER,
-    // })
-    // role: Roles;
+    @Column({
+        type: "enum",
+        enum: Roles,
+        default: Roles.CASHIER,
+    })
+    role: Roles;
 
-    // @OneToMany (() => Regions, (region) => region.manager_id, { nullable: true })
-    // regions: Regions[] | null;
+    @OneToOne (() => Regions, region => region.employee, { nullable: true })
+    @JoinColumn()
+    regions: Regions | null; //regionamanager relationship
 
-    // @OneToOne(() => Units, (unit : Units) => unit.manager_id, { nullable: true })
-    // unit_managers: Units | null;
+    @OneToOne(() => Units, unit => unit.employee, { nullable: true })
+    @JoinColumn()
+    units: Units | null; //unitmanager relationship
 
-    // @ManyToOne(() => Regions, (region: Regions) => region.employees, { nullable: true })
-    // @JoinColumn({ name: "region_id" })
-    // region: Regions | null;
+    @ManyToOne(() => Regions, region => region.employees, { nullable: true })
+    region: Regions | null;
 
-    // @ManyToOne(() => Units, (unit: Units) => unit.unit_id, { nullable: true })
-    // @JoinColumn({ name: "unit_id" })
-    // unit: Units | null;
+    @ManyToOne(() => Units, unit => unit.employees, { nullable: true })
+    unit: Units | null;
 
-    // @OneToMany(() => Bills, (bill: Bills) => bill.bill_id, { nullable: true })
-    // bills: Bills[];
+    @OneToMany(() => Bills, bill => bill.employee, { nullable: true })
+    bills: Bills[];
 
-    // @OneToMany(() => Unit_Stocks, (unit_stock: Unit_Stocks) => unit_stock.stock_id, { nullable: true })
-    // unit_stocks: Unit_Stocks[];
+    @OneToMany(() => Unit_Stocks, unit_stock => unit_stock.employee, { nullable: true })
+    unit_stocks: Unit_Stocks[];
   
     @Column({ type: "boolean", default: true })
     is_active: boolean;

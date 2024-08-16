@@ -1,14 +1,14 @@
 import "reflect-metadata";
 import { Entity, PrimaryColumn, Column, CreateDateColumn, OneToMany } from "typeorm";
-import { Bills } from "./foreign-entities/Bills";
+import { Bills } from "./Bills";
 
 @Entity()
 export class Customers {
   @PrimaryColumn()
-  mobile_number: string;
+  mobile: string;
 
-  // @OneToMany(() => Bills, bill => bill.bill_id, {nullable: true})
-  // bills: Bills[];
+  @OneToMany(() => Bills, bill => bill.customers, {nullable: true})
+  bills: Bills[] | null;
 
   @Column()
   name: string;
