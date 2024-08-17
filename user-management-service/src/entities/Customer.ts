@@ -1,24 +1,27 @@
 import "reflect-metadata";
 import { Entity, PrimaryColumn, Column, CreateDateColumn, OneToMany } from "typeorm";
-import { Bills } from "./Bills";
+import { Bill } from "./Bill";
 
 @Entity()
-export class Customers {
+export class Customer {
   @PrimaryColumn()
   mobile: string;
-
-  @OneToMany(() => Bills, bill => bill.customers, {nullable: true})
-  bills: Bills[] | null;
-
+  
   @Column()
   name: string;
-
+  
   @Column()
   address: string;
 
   @CreateDateColumn({type: "timestamp"})
   registered_date: Date;
 
-  @Column()
+  @Column({
+    type: "int",
+    default: 0,
+  })
   loyalty_points: number;
+
+  @OneToMany(() => Bill, bill => bill.customer)
+  bills: Bill[];
 }

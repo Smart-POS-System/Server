@@ -8,14 +8,14 @@ import {
     OneToMany,
     JoinColumn,
   } from "typeorm";
+  import { Region } from "./Region";
+  import { Location } from "./Location";
+  import { Bill } from "./Bill";
+  import { Stock } from "./Stock";
   import { Roles } from "../enums/roles.enum";
-  import { Regions } from "./Regions";
-  import { Units } from "./Units";
-  import { Bills } from "./Bills";
-  import { Unit_Stocks } from "./Unit_Stocks";
   
   @Entity()
-  export class Employees {
+  export class Employee {
     @PrimaryGeneratedColumn()
     employee_id: number;
   
@@ -35,25 +35,25 @@ import {
     })
     role: Roles;
 
-    @OneToOne (() => Regions, region => region.employee, { nullable: true })
-    @JoinColumn()
-    regions: Regions | null; //regionamanager relationship
+    @OneToOne (() => Region, region => region.employee)
+    region: Region; //regionamanager relationship
 
-    @OneToOne(() => Units, unit => unit.employee, { nullable: true })
-    @JoinColumn()
-    units: Units | null; //unitmanager relationship
+    // @OneToOne(() => Location, location => location.employee, { nullable: true })
+    // @JoinColumn()
+    // location: Location | null; //unitmanager relationship
 
-    @ManyToOne(() => Regions, region => region.employees, { nullable: true })
-    region: Regions | null;
+    // @ManyToOne(() => Regions, region => region.employees, { nullable: true })
+    // region: Regions | null;
 
-    @ManyToOne(() => Units, unit => unit.employees, { nullable: true })
-    unit: Units | null;
+    @ManyToOne(() => Location, location => location.employees, { nullable: true })
+    @JoinColumn({ name: "location_id" })
+    location: Location | null;
 
-    @OneToMany(() => Bills, bill => bill.employee, { nullable: true })
-    bills: Bills[];
+    @OneToMany(() => Bill, bill => bill.employee, { nullable: true })
+    bills: Bill[];
 
-    @OneToMany(() => Unit_Stocks, unit_stock => unit_stock.employee, { nullable: true })
-    unit_stocks: Unit_Stocks[];
+    @OneToMany(() => Stock, stock => stock.employee, { nullable: true })
+    stocks: Stock[];
   
     @Column({ type: "boolean", default: true })
     is_active: boolean;

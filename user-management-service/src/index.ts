@@ -2,9 +2,9 @@ import "reflect-metadata";
 import dotenv from "dotenv";
 import { DataSource } from "typeorm";
 import app from "./app";
-import { Employees } from "./entities/Employees";
-import { Customers } from "./entities/Customers";
-import { Customer } from "./entity/Customer";
+import { Employee } from "./entities/Employee";
+import { Customer } from "./entities/Customer";
+// import { Customer } from "./entity/Customer";
 
 // import { Roles } from "./enums/roles.enum";
 //import { insertRoles } from "./tests/insertRoles";

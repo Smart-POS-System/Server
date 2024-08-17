@@ -1,8 +1,14 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { env } from "process";
-import { Customers } from "./entities/Customers";
-import { Employees } from "./entities/Employees";
+import { Customer } from "./entities/Customer";
+import { Employee } from "./entities/Employee";
+import { Bill } from "./entities/Bill";
+import { Item } from "./entities/Item";
+import { Location } from "./entities/Location";
+import { Product } from "./entities/Product";
+import { Region } from "./entities/Region";
+import { Stock } from "./entities/Stock";
 // import { Role } from "./entity/Role";
 // import { Customer } from "./entity/Customer";
 // import { Employee } from "./entity/Employee";
@@ -22,7 +28,7 @@ export const AppDataSource = new DataSource({
   database: db_name,
   synchronize: false,
   logging: true,
-  entities: [Customers, Employees],
+  entities: [Customer, Employee, Bill, Item, Location, Product, Region, Stock],
   migrations: [],
   subscribers: [],
 });
