@@ -147,7 +147,7 @@ services: #define the containers to be run
   #     context: ./migration-service
   #     dockerfile: Dockerfile
 
-  #   command: ["npm","run","migration:run"]
+  #   command: ["npm", "run", "migration:run"]
 
   #   ports:
   #     - "3013:3000"
@@ -177,7 +177,7 @@ services: #define the containers to be run
     container_name: db
     image: postgres:12
     ports:
-      - "5430:5432"
+      - "5400:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres

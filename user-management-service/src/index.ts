@@ -4,6 +4,13 @@ import { DataSource } from "typeorm";
 import app from "./app";
 import { Employee } from "./entities/Employee";
 import { Customer } from "./entities/Customer";
+import { Location } from "./entities/Location";
+import { Region } from "./entities/Region";
+import { Product } from "./entities/Product";
+import { Stock } from "./entities/Stock";
+import { Item } from "./entities/Item";
+import { Bill } from "./entities/Bill";
+// import { Employee } from "./entity/Employee";
 // import { Customer } from "./entity/Customer";
 
 // import { Roles } from "./enums/roles.enum";
@@ -39,10 +46,10 @@ export const AppDataSource = new DataSource({
   username: process.env.PG_USER,
   password: process.env.PG_PASSWORD,
   database: process.env.PG_DB,
-  synchronize: false,
-  logging: false,
+  synchronize: true,
+  logging: true,
   // entities: [Employees, Customers],
-  entities: [Customer],
+  entities: [Customer, Employee, Location, Region, Product, Stock, Item, Bill],
 });
 
 AppDataSource.initialize()
