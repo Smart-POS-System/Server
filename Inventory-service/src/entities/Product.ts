@@ -1,8 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany} from 'typeorm';
-import { Product_Variants } from './Product_Variants';
+import { Item } from './Item';
 
 @Entity()
-export class Products {
+export class Product {
     @PrimaryGeneratedColumn()
     product_id: number;
 
@@ -12,6 +12,6 @@ export class Products {
     @Column({type: 'decimal', precision: 6, scale: 3})
     unit_weight: number;
 
-    @OneToMany(() => Product_Variants, variant => variant.variant_id, {nullable: true})
-    variants: Product_Variants[] | null;
+    @OneToMany(() => Item, item => item.product)
+    items: Item[];
 }
