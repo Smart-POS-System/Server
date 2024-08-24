@@ -4,6 +4,7 @@ import app from "./app";
 import { Employee } from "./entity/Employee";
 import { Customer } from "./entity/Customer";
 import { Role } from "./entity/Role";
+import { specs, swaggerUi } from "./swagger";
 //import { insertRoles } from "./tests/insertRoles";
 //import { insertEmployees } from "./tests/insertEmployees";
 
@@ -44,11 +45,12 @@ export const AppDataSource = new DataSource({
 AppDataSource.initialize()
   .then(() => {
     console.log("Data Source has been initialized!");
+    console.log("user service is listening on http://localhost:3009");
   })
   .catch((err) => {
     console.error("Error during Data Source initialization", err);
   });
-
+app.use("/api-docs/users-service", swaggerUi.serve, swaggerUi.setup(specs));
 const port = process.env.PORT || 3000;
 const server = app.listen(port, () => {
   console.log(`App running on port ${port}...`);

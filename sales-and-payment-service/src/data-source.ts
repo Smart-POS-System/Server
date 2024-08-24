@@ -11,12 +11,21 @@ import { Region } from "./entity/Region";
 import { Store } from "./entity/Store";
 import { Role } from "./entity/Role";
 import { StoreCashier } from "./entity/StoreCashier";
+import dotenv from "dotenv";
 
-const db_host = env.PG_HOST;
-const db_port = parseInt(env.PG_PORT);
-const db_name = env.PG_DB;
-const db_user = env.PG_USER;
-const db_password = env.PG_PASSWORD;
+dotenv.config();
+
+const db_host = process.env.PG_HOST;
+const db_port = parseInt(process.env.PG_PORT!, 10);
+const db_name = process.env.PG_DB;
+const db_user = process.env.PG_USER;
+const db_password = process.env.PG_PASSWORD;
+
+// console.log(`Database Host: ${db_host}`);
+// console.log(`Database Port: ${db_port}`);
+// console.log(`Database Name: ${db_name}`);
+// console.log(`Database User: ${db_user}`);
+// console.log(`Database Password: ${db_password}`);
 
 export const AppDataSource = new DataSource({
   type: "postgres",

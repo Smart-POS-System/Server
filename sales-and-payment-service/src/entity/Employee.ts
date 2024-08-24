@@ -27,17 +27,17 @@ export class Employee {
   role: Role;
 
   @Column({ nullable: true })
-  is_active: boolean | null;
+  is_active: boolean;
 
   @Column({ nullable: true })
-  temporary: boolean | null;
+  temporary: boolean;
 
   @Column({ nullable: true })
-  password_changed_at: Date | null;
+  password_changed_at: Date;
 
   @Column({ nullable: true })
-  password_reset_token: string | null;
+  password_reset_token: string;
 
   @Column({ nullable: true })
-  password_reset_expires: Date | null;
+  password_reset_expires: Date;
 }
