@@ -37,6 +37,7 @@ AppDataSource.initialize()
       );
     });
 
+<<<<<<< Updated upstream
     // setup express app here
     // ...
 
@@ -48,9 +49,14 @@ AppDataSource.initialize()
 
     // insert items for testing
     // await insertItems();
+=======
+    //connection swagger API-docs
+    app.use("/api-docs/user-service", swaggerUi.serve, swaggerUi.setup(specs));
+>>>>>>> Stashed changes
 
     console.log(
       "Express server has started on port 3000. Open http://localhost:3000/users to see results"
     );
+    console.log("http://localhost:3000/api-docs/user-service");
   })
   .catch((error) => console.log(error));

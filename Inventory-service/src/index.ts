@@ -50,6 +50,7 @@ AppDataSource.initialize()
     // start express server
     app.listen(3000);
 
+<<<<<<< Updated upstream
     // insert new regions for test
     // await insertRegions();
 
@@ -69,6 +70,27 @@ AppDataSource.initialize()
     // await insertInventorySupervisors();
 
     // insert inventory-warehouse and store stocks for testing
+=======
+    // // insert new regions for test
+    // await insertRegions();
+
+    // // insert new stores for test
+    // await insertStores();
+
+    // // insert cashiers for testing
+    // await insertCashiers();
+
+    // // insert store supervisors for testing
+    // await insertStoreSupervisors();
+
+    // // insert inventory for testing
+    // await insertInventory();
+
+    // // insert inventory supervisors for testing
+    // await insertInventorySupervisors();
+
+    // // insert inventory-warehouse and store stocks for testing
+>>>>>>> Stashed changes
     // await insertInventoryStocks();
     // await insertStoreStocks();
 
