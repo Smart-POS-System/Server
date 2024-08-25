@@ -25,6 +25,7 @@ export class Employee {
   @Column({ nullable: true })
   image: string;
 
+  @Column({ nullable: true })
   mobile: string;
 
   @Column({ unique: true })
