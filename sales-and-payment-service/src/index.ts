@@ -3,8 +3,8 @@ import * as bodyParser from "body-parser";
 import { Request, Response } from "express";
 import { AppDataSource } from "./data-source";
 import { Routes } from "./routes";
-import { insertBills } from "./tests/insertBills";
-import { insertBillItems } from "./tests/insertBillItems";
+// import { insertBills } from "./tests/insertBills";
+// import { insertBillItems } from "./tests/insertBillItems";
 
 AppDataSource.initialize()
   .then(async () => {
