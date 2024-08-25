@@ -33,8 +33,8 @@ export const getCustomer = async (
   next: NextFunction
 ) => {
   try {
-    const { nic } = req.params;
-    const customer = await getOneCustomer(nic);
+    const { mobile } = req.params;
+    const customer = await getOneCustomer(mobile);
 
     if (!customer) {
       return next(new AppError("Customer not found", 404));

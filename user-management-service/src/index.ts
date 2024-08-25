@@ -1,6 +1,15 @@
+import "reflect-metadata";
 import dotenv from "dotenv";
+import { DataSource } from "typeorm";
 import app from "./app";
-import { AppDataSource } from "./data-source";
+import { Employee } from "./entities/Employee";
+import { Customer } from "./entities/Customer";
+import { Location } from "./entities/Location";
+import { Region } from "./entities/Region";
+import { Product } from "./entities/Product";
+import { Stock } from "./entities/Stock";
+import { Item } from "./entities/Item";
+import { Bill } from "./entities/Bill";
 
 process.on("uncaughtException", (err: Error) => {
   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
@@ -24,17 +33,17 @@ dotenv.config({ path: "./config.env" });
 // });
 
 //For remote database
-// export const AppDataSource = new DataSource({
-//   type: process.env.DB_TYPE as any,
-//   host: process.env.PG_HOST,
-//   port: parseInt(process.env.PG_PORT || "", 10),
-//   username: process.env.PG_USER,
-//   password: process.env.PG_PASSWORD,
-//   database: process.env.PG_DB,
-//   synchronize: true,
-//   logging: false,
-//   entities: [Employee, Customer],
-// });
+export const AppDataSource = new DataSource({
+  type: process.env.DB_TYPE as any,
+  host: process.env.PG_HOST,
+  port: parseInt(process.env.PG_PORT || "", 10),
+  username: process.env.PG_USER,
+  password: process.env.PG_PASSWORD,
+  database: process.env.PG_DB,
+  synchronize: true,
+  logging: true,
+  entities: [Customer, Employee, Location, Region, Product, Stock, Item, Bill],
+});
 
 AppDataSource.initialize()
   .then(() => {

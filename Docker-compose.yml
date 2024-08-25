@@ -177,7 +177,8 @@ services: #define the containers to be run
     container_name: db
     image: postgres:12
     ports:
-      - "5430:5432"
+      - "5430:5432" # works on other devices
+      # - "5400:5432" # works on Yapa's device
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres

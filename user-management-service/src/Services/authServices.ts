@@ -4,9 +4,9 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import crypto from "crypto";
 import { AppDataSource } from "../data-source";
-import { Employee } from "../entity/Employee";
 import { UserRole } from "../enums/role.enum";
 import { sendMail } from "../Utils/userMail";
+import { Employee } from "../entities/Employee";
 
 dotenv.config({ path: "../../config.env" });
 

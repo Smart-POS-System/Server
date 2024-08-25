@@ -1,5 +1,5 @@
-import { Customer } from "../entity/Customer";
 import { AppDataSource } from "../data-source";
+import { Customer } from "../entities/Customer";
 
 export const getAllCustomers = async (queryString: any) => {
   const { page, limit, sortBy, sortOrder } = queryString;
@@ -17,9 +17,9 @@ export const getAllCustomers = async (queryString: any) => {
   return customers;
 };
 
-export const getOneCustomer = async (nic: string) => {
+export const getOneCustomer = async (mobile: string) => {
   const customerRepository = AppDataSource.getRepository(Customer);
-  const customer = await customerRepository.findOne({ where: { nic } });
+  const customer = await customerRepository.findOne({ where: { mobile } });
 
   return customer;
 };

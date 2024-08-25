@@ -1,12 +1,13 @@
-import { Employee } from "../entity/Employee";
 //import { AppDataSource } from "./../data-source";
 import { AppDataSource } from "../data-source";
 import bcrypt from "bcryptjs";
+import { Employee } from "../entities/Employee";
+import { Roles } from "../enums/roles.enum";
 
 export const createUser = async (
   name: string,
   email: string,
-  role: string,
+  role: Roles,
   phone: string,
   image: any
 ) => {
@@ -15,13 +16,13 @@ export const createUser = async (
   const hashedPassword = await bcrypt.hash(defaultPassword, 12);
 
   const newUser = userRepository.create({
-    employee_name: name,
+    name,
     email,
     password: hashedPassword,
     role,
     temporary: true,
     is_active: true,
-    mobile_number: phone,
+    mobile: phone,
     image: image,
     account_created_at: new Date(Date.now()),
   });
