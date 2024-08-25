@@ -10,17 +10,7 @@ export class ProductController {
   }
 
   async one(request: Request, response: Response, next: NextFunction) {
-    const product_id = parseInt(request.params.product_id);
-    let product = null;
-
-    product = await this.productRepository.findOne({
-      where: { product_id },
-    });
-
-    if (!product) {
-      return "Unregistered product";
-    }
-    return product;
+    return request.body.product;
   }
 
   async save(request: Request, response: Response, next: NextFunction) {
@@ -35,19 +25,6 @@ export class ProductController {
   }
 
   async remove(request: Request, response: Response, next: NextFunction) {
-    const product_id = parseInt(request.params.product_id);
-    let productToRemove = null;
-
-    productToRemove = await this.productRepository.findOneBy({
-      product_id,
-    });
-
-    if (!productToRemove) {
-      return "This product does not exist";
-    }
-
-    await this.productRepository.remove(productToRemove);
-
-    return "Product has been removed";
+    return await this.productRepository.remove(request.body.product);
   }
 }

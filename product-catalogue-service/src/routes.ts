@@ -1,5 +1,7 @@
 import { ItemController } from "./controller/ItemController";
 import { ProductController } from "./controller/ProductController";
+import doesItemExist from "./middleware/doesItemExist";
+import doesItemForeignKeyConstraintExist from "./middleware/doesItemForeignKeyConstraintExist";
 import doesProductExist from "./middleware/doesProductExist";
 import validateItem from "./middleware/validateItem";
 
@@ -15,7 +17,7 @@ export const Routes = [
     method: "get",
     route: "/items/:item_id",
     controller: ItemController,
-    middleware: [],
+    middleware: [doesItemExist],
     action: "one",
   },
   {
@@ -29,7 +31,7 @@ export const Routes = [
     method: "delete",
     route: "/items/:item_id",
     controller: ItemController,
-    middleware: [],
+    middleware: [doesItemExist],
     action: "remove",
   },
   {
@@ -43,7 +45,7 @@ export const Routes = [
     method: "get",
     route: "/products/:product_id",
     controller: ProductController,
-    middleware: [],
+    middleware: [doesProductExist],
     action: "one",
   },
   {
@@ -57,7 +59,7 @@ export const Routes = [
     method: "delete",
     route: "/products/:product_id",
     controller: ProductController,
-    middleware: [],
+    middleware: [doesProductExist, doesItemForeignKeyConstraintExist],
     action: "remove",
   },
 ];

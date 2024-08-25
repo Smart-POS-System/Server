@@ -9,9 +9,11 @@ const doesProductExist = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("Checking if product exists...");
-
-  const { product_id } = req.body;
+  let { product_id } = req.body;
+  if (!product_id) {
+    product_id = req.params.product_id;
+  }
+  console.log(`product_id is ${product_id} from doesProductExist`);
 
   // Fetch the Product entity using the product_id
   const product = await AppDataSource.getRepository(Product).findOne({
@@ -20,7 +22,7 @@ const doesProductExist = async (
 
   if (!product) {
     return res
-      .status(400)
+      .status(404)
       .send(
         "There is no product in the database with the product_id: " + product_id
       );
