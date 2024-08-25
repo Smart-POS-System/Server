@@ -2,17 +2,24 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 import xss from "xss-clean";
+import cors from "cors";
 import { userRouter } from "./Routes/employeeRoutes";
 import { customerRouter } from "./Routes/customerRoutes";
 
 const app = express();
 
+const corsOptions = {
+  origin: "http://localhost:3001", // Your frontend URL
+  credentials: true, // Enable the Access-Control-Allow-Credentials header
+};
+
+app.use(cors(corsOptions));
 app.use(cookieParser());
 
 app.use(express.json({ limit: "10kb" }));
 
 const limiter = rateLimit({
-  max: 100,
+  max: 200,
   windowMs: 60 * 60 * 1000,
   message: "Too many requests from this IP, please try again in an hour!",
 });

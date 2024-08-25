@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, Timestamp } from "typeorm";
 
 import { UserRole } from "../enums/role.enum";
 
@@ -19,6 +19,15 @@ export class Employee {
   @Column({ type: "enum", enum: UserRole })
   role: string;
 
+  @Column({ type: "text", nullable: true })
+  mobile_number: string;
+
+  @Column({ type: "text", nullable: true })
+  image: string | null;
+
+  @Column({ type: "timestamp", nullable: true })
+  account_created_at: Timestamp | null;
+
   @Column({ type: "boolean", nullable: true })
   is_active: boolean | null;
 
@@ -26,11 +35,14 @@ export class Employee {
   temporary: boolean | null;
 
   @Column({ type: "timestamp", nullable: true })
-  password_changed_at: Date | null;
+  password_changed_at: Timestamp | null;
 
   @Column({ type: "text", nullable: true })
   password_reset_token: string | null;
 
   @Column({ type: "timestamp", nullable: true })
-  password_reset_expires: Date | null;
+  password_reset_expires: Timestamp | null;
+
+  @Column({ type: "timestamp", nullable: true })
+  last_login: Timestamp | null;
 }

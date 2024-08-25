@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../Utils/appError";
 import { getAllCustomers, getOneCustomer } from "../Services/customerServices";
+import { setFeatures } from "../Utils/features";
 
 export const getCustomers = async (
   req: Request,
@@ -8,7 +9,8 @@ export const getCustomers = async (
   next: NextFunction
 ) => {
   try {
-    const customers = await getAllCustomers();
+    const queryString = setFeatures(req.query);
+    const customers = await getAllCustomers(queryString);
     if (!customers || customers.length === 0) {
       return next(new AppError("No customers found", 404));
     }

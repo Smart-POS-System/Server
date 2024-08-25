@@ -69,7 +69,7 @@ export const protect = catchAsync(
       const decoded: any = await verifyToken(token, jwtSecret);
 
       const currentUser = await isUserExist(decoded.email);
-      //  console.log("Current User: ", currentUser);
+      // console.log("Current User: ", currentUser);
 
       if (!currentUser) {
         return next(

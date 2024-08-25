@@ -1,12 +1,6 @@
 import dotenv from "dotenv";
-import { DataSource } from "typeorm";
 import app from "./app";
-import { Employee } from "./entity/Employee";
-import { Customer } from "./entity/Customer";
-import { Role } from "./entity/Role";
-//import { AppDataSource } from "./data-source";
-//import { insertRoles } from "./tests/insertRoles";
-//import { insertEmployees } from "./tests/insertEmployees";
+import { AppDataSource } from "./data-source";
 
 process.on("uncaughtException", (err: Error) => {
   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
@@ -17,30 +11,30 @@ process.on("uncaughtException", (err: Error) => {
 dotenv.config({ path: "./config.env" });
 
 //For local database
-export const AppDataSource = new DataSource({
-  type: process.env.DB_TYPE as any,
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT || "", 10),
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  synchronize: true,
-  logging: false,
-  entities: [Employee, Customer],
-});
+// export const AppDataSource = new DataSource({
+//   type: process.env.DB_TYPE as any,
+//   host: process.env.DB_HOST,
+//   port: parseInt(process.env.DB_PORT || "", 10),
+//   username: process.env.DB_USER,
+//   password: process.env.DB_PASSWORD,
+//   database: process.env.DB_NAME,
+//   synchronize: true,
+//   logging: false,
+//   entities: [Employee, Customer],
+// });
 
 //For remote database
-/*export const AppDataSource = new DataSource({
-  type: process.env.DB_TYPE as any,
-  host: process.env.PG_HOST,
-  port: parseInt(process.env.PG_PORT || "", 10),
-  username: process.env.PG_USER,
-  password: process.env.PG_PASSWORD,
-  database: process.env.PG_DB,
-  synchronize: true,
-  logging: false,
-  entities: [Employee, Customer, Role],
-});*/
+// export const AppDataSource = new DataSource({
+//   type: process.env.DB_TYPE as any,
+//   host: process.env.PG_HOST,
+//   port: parseInt(process.env.PG_PORT || "", 10),
+//   username: process.env.PG_USER,
+//   password: process.env.PG_PASSWORD,
+//   database: process.env.PG_DB,
+//   synchronize: true,
+//   logging: false,
+//   entities: [Employee, Customer],
+// });
 
 AppDataSource.initialize()
   .then(() => {

@@ -8,10 +8,10 @@ import { isUserExist } from "../Services/authServices";
 
 export const validateUser = [
   body("name")
-    .isString()
-    .withMessage("User's name must be a string")
     .notEmpty()
-    .withMessage("User's name is required"),
+    .withMessage("User's name is required")
+    .isString()
+    .withMessage("User's name must be a string"),
   body("role")
     .isIn(validRoles)
     .withMessage(
@@ -24,6 +24,13 @@ export const validateUser = [
     .withMessage("Email must be a valid email address")
     .notEmpty()
     .withMessage("Email is required"),
+  body("phone")
+    .isString()
+    .withMessage("Phone number must be a string of 10 digits")
+    .matches(/^\d{10}$/)
+    .withMessage("Phone number must be a string of 10 digits")
+    .notEmpty()
+    .withMessage("Phone number is required"),
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

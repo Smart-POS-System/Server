@@ -1,24 +1,41 @@
 import { NextFunction, Request, Response } from "express";
-import bcrypt from "bcryptjs";
 import AppError from "../Utils/appError";
 import catchAsync from "../Utils/catchAsync";
-import { Employee } from "../entity/Employee";
 import {
+  activateOneUser,
   createUser,
   deleteOneUser,
   getAllUsers,
   getOneUser,
   getUserByEmailAndCurrentPassword,
+  updateMe,
   updateOneUser,
   updateUserPassword,
 } from "../Services/emplyeeServices";
 import { getCurrentUserRoleInfo } from "../Utils/getUserInfo";
+import { setFeatures } from "../Utils/features";
+import { getImageLink } from "../Utils/getImageLink";
 
 export const createUserByAdmin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { name, email, role } = req.body;
-      const user = await createUser(name, email, role);
+      const { name, email, role, phone } = req.body;
+
+      let imageLink = null;
+      if (req.file || req.body.image) {
+        imageLink = await getImageLink(req);
+        if (!imageLink) {
+          return next(new AppError("Couldn't upload image", 400));
+        }
+      }
+
+      const user = await createUser(
+        name,
+        email,
+        role,
+        phone,
+        imageLink || null
+      );
 
       res.status(201).json({
         status: "success",
@@ -74,8 +91,9 @@ export const getUsers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const allowedRoles = getCurrentUserRoleInfo(req.user);
+      const queryString = setFeatures(req.query);
 
-      const users = await getAllUsers(allowedRoles);
+      const users = await getAllUsers(allowedRoles, queryString);
 
       if (!users || users.length === 0) {
         return next(new AppError("No users found", 404));
@@ -83,7 +101,6 @@ export const getUsers = catchAsync(
 
       res.status(200).json({
         status: "success",
-        length: users.length,
         data: {
           users,
         },
@@ -124,13 +141,22 @@ export const updateUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
-      const { name, email, role } = req.body;
+      const { name, email, role, phone } = req.body;
       const allowedRoles = getCurrentUserRoleInfo(req.user);
+      let imageLink = null;
+      if (req.file || req.body.image) {
+        imageLink = await getImageLink(req);
+        if (!imageLink) {
+          return next(new AppError("Couldn't upload image", 400));
+        }
+      }
 
       const user = await updateOneUser(parseInt(id), allowedRoles, {
-        name,
+        employee_name: name,
         email,
         role,
+        mobile_number: phone,
+        image: imageLink || null,
       });
 
       if (!user) {
@@ -167,6 +193,67 @@ export const deleteUser = catchAsync(
       res.status(200).json({
         status: "success",
         message: "User account deactivated successfully",
+      });
+    } catch (err: any) {
+      return next(new AppError(err.message, 400));
+    }
+  }
+);
+
+export const activateUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+
+      const status = await activateOneUser(parseInt(id));
+
+      if (!status) {
+        return next(
+          new AppError("You don't have access or user not found", 404)
+        );
+      }
+
+      res.status(200).json({
+        status: "success",
+        message: "User account activated successfully",
+      });
+    } catch (err: any) {
+      return next(new AppError(err.message, 400));
+    }
+  }
+);
+
+export const updateLoggedUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const { name, email, phone } = req.body;
+      let imageLink = null;
+      if (req.file || req.body.image) {
+        imageLink = await getImageLink(req);
+        if (!imageLink) {
+          return next(new AppError("Couldn't upload image", 400));
+        }
+      }
+
+      const user = await updateMe(parseInt(id), {
+        employee_name: name,
+        email,
+        mobile_number: phone,
+        image: imageLink || null,
+      });
+
+      if (!user) {
+        return next(
+          new AppError("You don't have access or user not found", 404)
+        );
+      }
+
+      res.status(200).json({
+        status: "success",
+        data: {
+          user,
+        },
       });
     } catch (err: any) {
       return next(new AppError(err.message, 400));

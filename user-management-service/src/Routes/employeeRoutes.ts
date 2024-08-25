@@ -1,12 +1,13 @@
 import express from "express";
 import {
-  // createAdmin,
   createUserByAdmin,
   updatePasswordByUser,
   getUser,
   getUsers,
   updateUser,
   deleteUser,
+  activateUser,
+  updateLoggedUser,
 } from "../Controllers/employeeController";
 import {
   forgotPassword,
@@ -24,6 +25,7 @@ import {
   validateCreation,
   validateUser,
 } from "../Middleware/employeeMiddlewares";
+import { upload } from "../Utils/getImageLink";
 
 const router = express.Router();
 
@@ -37,6 +39,7 @@ router
   .get(protect, getUsers, errorHandler)
   .post(
     protect,
+    upload,
     validateUser,
     isUserExists,
     restrictToCreate,
@@ -48,8 +51,25 @@ router
 router
   .route("/:id")
   .get(protect, getUser, errorHandler)
-  .patch(protect, validateUser, updateUser, errorHandler)
+  .patch(protect, upload, validateUser, updateUser, errorHandler)
   .delete(protect, restrictTo("General Manager"), deleteUser, errorHandler);
+
+router.patch(
+  "/updateMe/:id",
+  protect,
+  upload,
+  validateUser,
+  updateLoggedUser,
+  errorHandler
+);
+
+router.patch(
+  "/activate/:id",
+  protect,
+  restrictTo("General Manager"),
+  activateUser,
+  errorHandler
+);
 
 router.post(
   "/updatePassword",
