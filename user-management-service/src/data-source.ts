@@ -29,8 +29,8 @@ export const AppDataSource = new DataSource({
   database: db_name,
   synchronize: false,
   logging: true,
-  // entities: [Customer, Employee, Bill, Item, Location, Product, Region, Stock],
-  entities: [Customer, Employee],
+  entities: [Customer, Employee, Bill, Item, Location, Product, Region, Stock],
+  // entities: [Customer, Employee],
   migrations: [],
   subscribers: [],
 });
