@@ -1,12 +1,14 @@
 import { AppDataSource } from "../data-source";
 import { NextFunction, Request, Response } from "express";
-import { Item } from "../entity/Item";
+import { Item } from "../entities/Item";
+import { Product } from "../entities/Product";
+import { QueryFailedError } from "typeorm";
 
 export class ItemController {
   private itemRepository = AppDataSource.getRepository(Item);
 
   async all(request: Request, response: Response, next: NextFunction) {
-    return this.itemRepository.find();
+    return this.itemRepository.find({ relations: ["product"] });
   }
 
   async one(request: Request, response: Response, next: NextFunction) {
@@ -14,6 +16,7 @@ export class ItemController {
 
     const item = await this.itemRepository.findOne({
       where: { item_id },
+      relations: ["product"],
     });
 
     if (!item) {
@@ -23,19 +26,23 @@ export class ItemController {
   }
 
   async save(request: Request, response: Response, next: NextFunction) {
-    const { product_id, batch_code, product_name, unit_weight, mfd, exp } =
+    console.log("In actual action method now...");
+
+    const { product, batch_no, buying_price, selling_price, mfd, exp } =
       request.body;
 
+    // Create and assign the Item entity
     const item = Object.assign(new Item(), {
-      product_id,
-      batch_code,
-      product_name,
-      unit_weight,
+      product, // Associate the Product entity with the Item
+      batch_no,
+      buying_price,
+      selling_price,
       mfd,
       exp,
     });
 
-    return this.itemRepository.save(item);
+    // Try and save the Item entity to the database
+    return await this.itemRepository.save(item);
   }
 
   async remove(request: Request, response: Response, next: NextFunction) {
@@ -44,7 +51,9 @@ export class ItemController {
     let itemToRemove = await this.itemRepository.findOneBy({ item_id });
 
     if (!itemToRemove) {
-      return "This item does not exist";
+      return response
+        .status(404)
+        .json({ message: "No item with item_id: " + item_id.toString() });
     }
 
     await this.itemRepository.remove(itemToRemove);

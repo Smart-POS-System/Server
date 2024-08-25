@@ -1,6 +1,6 @@
 import { AppDataSource } from "../data-source";
 import { NextFunction, Request, Response } from "express";
-import { Product } from "../entity/Product";
+import { Product } from "../entities/Product";
 
 export class ProductController {
   private productRepository = AppDataSource.getRepository(Product);
@@ -11,8 +11,9 @@ export class ProductController {
 
   async one(request: Request, response: Response, next: NextFunction) {
     const product_id = parseInt(request.params.product_id);
+    let product = null;
 
-    const product = await this.productRepository.findOne({
+    product = await this.productRepository.findOne({
       where: { product_id },
     });
 
@@ -35,8 +36,9 @@ export class ProductController {
 
   async remove(request: Request, response: Response, next: NextFunction) {
     const product_id = parseInt(request.params.product_id);
+    let productToRemove = null;
 
-    let productToRemove = await this.productRepository.findOneBy({
+    productToRemove = await this.productRepository.findOneBy({
       product_id,
     });
 

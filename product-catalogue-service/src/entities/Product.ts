@@ -1,17 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany} from 'typeorm';
-import { Item } from './Item';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Item } from "./Item";
 
 @Entity()
 export class Product {
-    @PrimaryGeneratedColumn()
-    product_id: number;
+  @PrimaryGeneratedColumn()
+  product_id: number;
 
-    @Column({ unique: true })
-    product_name: string;
+  @Column({ unique: true })
+  product_name: string;
 
-    @Column({type: 'decimal', precision: 6, scale: 3})
-    unit_weight: number;
+  @Column()
+  unit_weight: string;
 
-    @OneToMany(() => Item, item => item.product)
-    items: Item[];
+  @OneToMany(() => Item, (item) => item.product)
+  items: Item[];
 }

@@ -1,7 +1,7 @@
 {
-   "name": "typeorm-sample",
+   "name": "product-catalogue-service",
    "version": "0.0.1",
-   "description": "Awesome project developed with TypeORM.",
+   "description": "Micro-service for the product catalogue service.",
    "type": "commonjs",
    "devDependencies": {
       "ts-node": "10.9.1",
