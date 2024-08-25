@@ -1,20 +1,19 @@
-// routes/test-route.js
+// routes/sample.js
 /**
  * @swagger
- * /test:
+ * /sample:
  *   get:
  *     summary: Returns a sample message
  *     responses:
  *       200:
  *         description: A successful response
  */
-
 import express from "express";
 
 const router = express.Router();
 
-router.get("/test", (req, res) => {
-  res.send("hello from tst route - product catalouge");
+router.get("/sample", (req, res) => {
+  res.json({ message: "This is a sample message" });
 });
 
-export { router as testRoute };
+export { router as sample };

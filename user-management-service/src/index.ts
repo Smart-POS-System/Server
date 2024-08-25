@@ -16,6 +16,7 @@ import { Bill } from "./entities/Bill";
 // import { Roles } from "./enums/roles.enum";
 //import { insertRoles } from "./tests/insertRoles";
 //import { insertEmployees } from "./tests/insertEmployees";
+import { specs, swaggerUi } from "./swagger";
 
 process.on("uncaughtException", (err: Error) => {
   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
@@ -55,11 +56,12 @@ export const AppDataSource = new DataSource({
 AppDataSource.initialize()
   .then(() => {
     console.log("Data Source has been initialized!");
+    console.log("user service is listening on http://localhost:3009");
   })
   .catch((err) => {
     console.error("Error during Data Source initialization", err);
   });
-
+app.use("/api-docs/users-service", swaggerUi.serve, swaggerUi.setup(specs));
 const port = process.env.PORT || 3000;
 const server = app.listen(port, () => {
   console.log(`App running on port ${port}...`);
