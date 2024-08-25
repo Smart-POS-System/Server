@@ -1,6 +1,6 @@
 import { AppDataSource } from "../data-source";
 import { NextFunction, Request, Response } from "express";
-import { Customer } from "./../entity/Customer";
+import { Customer } from "../entity/Customer";
 
 export class CustomerController {
   private customerRepository = AppDataSource.getRepository(Customer);

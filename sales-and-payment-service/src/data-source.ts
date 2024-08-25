@@ -1,16 +1,15 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { env } from "process";
-import { Bill } from "./entity/Bill";
-import { BillItem } from "./entity/BillItem";
-import { Customer } from "./entity/Customer";
-import { Employee } from "./entity/Employee";
-import { Item } from "./entity/Item";
-import { Product } from "./entity/Product";
-import { Region } from "./entity/Region";
-import { Store } from "./entity/Store";
-import { Role } from "./entity/Role";
-import { StoreCashier } from "./entity/StoreCashier";
+import { Bill } from "./entities/Bill";
+import { Customer } from "./entities/Customer";
+import { Employee } from "./entities/Employee";
+import { Location } from "./entities/Location";
+import { Region } from "./entities/Region";
+import { Product } from "./entities/Product";
+import { Stock } from "./entities/Stock";
+import { Item } from "./entities/Item";
+
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -34,20 +33,9 @@ export const AppDataSource = new DataSource({
   username: db_user,
   password: db_password,
   database: db_name,
-  synchronize: true,
-  logging: false,
-  entities: [
-    Bill,
-    BillItem,
-    Customer,
-    Employee,
-    Item,
-    Product,
-    Region,
-    Store,
-    Role,
-    StoreCashier,
-  ],
+  synchronize: false,
+  logging: true,
+  entities: [Customer, Employee, Location, Region, Product, Stock, Item, Bill],
   migrations: [],
   subscribers: [],
 });

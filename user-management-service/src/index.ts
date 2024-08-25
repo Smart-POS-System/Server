@@ -1,12 +1,22 @@
+import "reflect-metadata";
 import dotenv from "dotenv";
 import { DataSource } from "typeorm";
 import app from "./app";
-import { Employee } from "./entity/Employee";
-import { Customer } from "./entity/Customer";
-import { Role } from "./entity/Role";
-import { specs, swaggerUi } from "./swagger";
+import { Employee } from "./entities/Employee";
+import { Customer } from "./entities/Customer";
+import { Location } from "./entities/Location";
+import { Region } from "./entities/Region";
+import { Product } from "./entities/Product";
+import { Stock } from "./entities/Stock";
+import { Item } from "./entities/Item";
+import { Bill } from "./entities/Bill";
+// import { Employee } from "./entity/Employee";
+// import { Customer } from "./entity/Customer";
+
+// import { Roles } from "./enums/roles.enum";
 //import { insertRoles } from "./tests/insertRoles";
 //import { insertEmployees } from "./tests/insertEmployees";
+import { specs, swaggerUi } from "./swagger";
 
 process.on("uncaughtException", (err: Error) => {
   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
@@ -38,8 +48,9 @@ export const AppDataSource = new DataSource({
   password: process.env.PG_PASSWORD,
   database: process.env.PG_DB,
   synchronize: true,
-  logging: false,
-  entities: [Employee, Customer, Role],
+  logging: true,
+  // entities: [Employees, Customers],
+  entities: [Customer, Employee, Location, Region, Product, Stock, Item, Bill],
 });
 
 AppDataSource.initialize()
