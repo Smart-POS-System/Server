@@ -4,6 +4,7 @@ import doesItemExist from "./middleware/doesItemExist";
 import doesItemForeignKeyConstraintExist from "./middleware/doesItemForeignKeyConstraintExist";
 import doesProductExist from "./middleware/doesProductExist";
 import validateItem from "./middleware/validateItem";
+import validateProduct from "./middleware/validateProduct";
 
 export const Routes = [
   {
@@ -52,7 +53,7 @@ export const Routes = [
     method: "post",
     route: "/products",
     controller: ProductController,
-    middleware: [],
+    middleware: [validateProduct],
     action: "save",
   },
   {
