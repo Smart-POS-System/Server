@@ -159,8 +159,8 @@ services: #define the containers to be run
       - PG_PASSWORD=postgres
       - PG_DB=postgres
     depends_on:
-      - db
       - user-srv
+      - db
 
     develop:
       watch:

@@ -3,8 +3,6 @@ import * as bodyParser from "body-parser";
 import { Request, Response } from "express";
 import { AppDataSource } from "./data-source";
 import { Routes } from "./routes";
-import { insertProducts } from "./tests/insertProducts";
-import { insertItems } from "./tests/insertItems";
 
 AppDataSource.initialize()
   .then(async () => {
@@ -14,8 +12,10 @@ AppDataSource.initialize()
 
     // register express routes from defined application routes
     Routes.forEach((route) => {
+      const middleware = route.middleware;
       (app as any)[route.method](
         route.route,
+        ...middleware,
         (req: Request, res: Response, next: Function) => {
           const result = new (route.controller as any)()[route.action](
             req,
@@ -35,22 +35,11 @@ AppDataSource.initialize()
       );
     });
 
-<<<<<<< Updated upstream
     // setup express app here
     // ...
 
     // start express server
     app.listen(3000);
-
-    // insert products for testing
-    // await insertProducts();
-
-    // insert items for testing
-    // await insertItems();
-=======
-    //connection swagger API-docs
-    app.use("/api-docs/user-service", swaggerUi.serve, swaggerUi.setup(specs));
->>>>>>> Stashed changes
 
     console.log(
       "Express server has started on port 3000. Open http://localhost:3000/users to see results"
