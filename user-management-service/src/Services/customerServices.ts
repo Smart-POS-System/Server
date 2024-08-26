@@ -1,4 +1,6 @@
-import { AppDataSource } from "../data-source";
+//import { AppDataSource } from "../data-source";
+
+import { AppDataSource } from "../index";
 import { Customer } from "../entities/Customer";
 
 export const getAllCustomers = async (queryString: any) => {

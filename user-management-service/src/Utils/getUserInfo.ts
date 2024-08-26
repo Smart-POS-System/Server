@@ -1,42 +1,31 @@
 import { NextFunction, Request, Response } from "express";
 
-import { UserRole } from "../enums/role.enum";
+import { Roles } from "../enums/roles.enum";
 
 export const roleHierarchy1 = {
-  [UserRole.GeneralManager]: 1,
-  [UserRole.RegionalManager]: 2,
-  [UserRole.InventoryManager]: 3,
-  [UserRole.InventorySupervisor]: 4,
-  [UserRole.StoreManager]: 5,
-  [UserRole.StoreSupervisor]: 6,
-  [UserRole.Cashier]: 7,
+  [Roles.GENERAL_MANAGER]: 1,
+  [Roles.REGIONAL_MANAGER]: 2,
+  [Roles.INVENTORY_MANAGER]: 3,
+  [Roles.STORE_MANAGER]: 4,
+  [Roles.CASHIER]: 5,
 };
 
 export const roleHierarchy2 = {
-  [UserRole.GeneralManager]: 1,
-  [UserRole.RegionalManager]: 2,
-  [UserRole.InventoryManager]: 3,
-  [UserRole.InventorySupervisor]: 4,
+  [Roles.GENERAL_MANAGER]: 1,
+  [Roles.REGIONAL_MANAGER]: 2,
+  [Roles.INVENTORY_MANAGER]: 3,
 };
 
 export const roleHierarchy3 = {
-  [UserRole.GeneralManager]: 1,
-  [UserRole.RegionalManager]: 2,
-  [UserRole.StoreManager]: 3,
-  [UserRole.StoreSupervisor]: 4,
-  [UserRole.Cashier]: 5,
+  [Roles.GENERAL_MANAGER]: 1,
+  [Roles.REGIONAL_MANAGER]: 2,
+  [Roles.STORE_MANAGER]: 3,
+  [Roles.CASHIER]: 4,
 };
 
-export const lowerRole1 = [
-  UserRole.InventoryManager,
-  UserRole.InventorySupervisor,
-];
+export const lowerRole1 = [Roles.INVENTORY_MANAGER];
 
-export const lowerRole2 = [
-  UserRole.StoreManager,
-  UserRole.StoreSupervisor,
-  UserRole.Cashier,
-];
+export const lowerRole2 = [Roles.STORE_MANAGER, Roles.CASHIER];
 
 export const getCurrentUserRoleInfo = (request: any) => {
   if (!request || !request.role) {

@@ -15,7 +15,7 @@ export const validateUser = [
   body("role")
     .isIn(validRoles)
     .withMessage(
-      "Role must be one of Regional Manager, Inventory Manager, Inventory Supervisor, Store Manager, Store Supervisor, Cashier"
+      "Role must be one of Regional Manager, Inventory Manager, Store Manager, Cashier"
     )
     .notEmpty()
     .withMessage("Role is required"),
@@ -108,3 +108,22 @@ export const validateCreation = [
     next();
   }),
 ];
+
+export const validateMe = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+
+      if (!req.user || parseInt(id) !== req.user.employee_id) {
+        return next(
+          new AppError("You are not authorized to perform this action", 403)
+        );
+      }
+
+      req.body.role = req.user.role;
+      next();
+    } catch (err: any) {
+      return next(new AppError(err.message, 400));
+    }
+  }
+);

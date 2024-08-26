@@ -15,6 +15,9 @@ import {
 import { getCurrentUserRoleInfo } from "../Utils/getUserInfo";
 import { setFeatures } from "../Utils/features";
 import { getImageLink } from "../Utils/getImageLink";
+import { AppDataSource } from "..";
+import { Employee } from "../entities/Employee";
+import bcrypt from "bcryptjs";
 
 export const createUserByAdmin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -98,7 +101,7 @@ export const getUsers = catchAsync(
       if (!users || users.length === 0) {
         return next(new AppError("No users found", 404));
       }
-
+      console.log("users.........", users);
       res.status(200).json({
         status: "success",
         data: {
@@ -124,7 +127,7 @@ export const getUser = catchAsync(
           new AppError("You don't have access or user not found", 404)
         );
       }
-
+      console.log("fucking getUser", user);
       res.status(200).json({
         status: "success",
         data: {
@@ -143,7 +146,41 @@ export const updateUser = catchAsync(
       const { id } = req.params;
       const { name, email, role, phone } = req.body;
       const allowedRoles = getCurrentUserRoleInfo(req.user);
+
+      const userParams = {
+        name,
+        email,
+        role,
+        mobile: phone,
+      };
+
+      const user = await updateOneUser(parseInt(id), allowedRoles, userParams);
+
+      if (!user) {
+        return next(
+          new AppError("You don't have access or user not found", 404)
+        );
+      }
+
+      res.status(200).json({
+        status: "success",
+        data: {
+          user,
+        },
+      });
+    } catch (err: any) {
+      return next(new AppError(err.message, 400));
+    }
+  }
+);
+
+export const updateImage = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const allowedRoles = getCurrentUserRoleInfo(req.user);
       let imageLink = null;
+
       if (req.file || req.body.image) {
         imageLink = await getImageLink(req);
         if (!imageLink) {
@@ -151,13 +188,11 @@ export const updateUser = catchAsync(
         }
       }
 
-      const user = await updateOneUser(parseInt(id), allowedRoles, {
-        employee_name: name,
-        email,
-        role,
-        mobile_number: phone,
-        image: imageLink || null,
-      });
+      const userParams = {
+        image: imageLink,
+      };
+
+      const user = await updateOneUser(parseInt(id), allowedRoles, userParams);
 
       if (!user) {
         return next(
@@ -237,10 +272,10 @@ export const updateLoggedUser = catchAsync(
       }
 
       const user = await updateMe(parseInt(id), {
-        employee_name: name,
+        name,
         email,
-        mobile_number: phone,
-        image: imageLink || null,
+        mobile: phone,
+        ...(imageLink && { image: imageLink }),
       });
 
       if (!user) {
@@ -261,9 +296,9 @@ export const updateLoggedUser = catchAsync(
   }
 );
 
-/*export const createAdmin = catchAsync(
+export const createAdmin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, role, password, passwordConfirm, email } = req.body;
+    const { name, role, password, passwordConfirm, email, mobile } = req.body;
 
     if (password !== passwordConfirm) {
       return next(new AppError("Passwords do not match", 400));
@@ -278,12 +313,13 @@ export const updateLoggedUser = catchAsync(
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const newUser = userRepository.create({
-      employee_name: name,
+      name,
       email,
       password: hashedPassword,
       role,
       temporary: false,
       is_active: true,
+      mobile,
     });
 
     await userRepository.save(newUser);
@@ -296,4 +332,4 @@ export const updateLoggedUser = catchAsync(
       },
     });
   }
-);*/
+);

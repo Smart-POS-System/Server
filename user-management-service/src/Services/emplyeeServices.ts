@@ -1,8 +1,10 @@
 //import { AppDataSource } from "./../data-source";
-import { AppDataSource } from "../data-source";
+//import { AppDataSource } from "../data-source";
+
 import bcrypt from "bcryptjs";
 import { Employee } from "../entities/Employee";
 import { Roles } from "../enums/roles.enum";
+import { AppDataSource } from "../index";
 
 export const createUser = async (
   name: string,
@@ -74,7 +76,7 @@ export const getAllUsers = async (allowedRoles: string[], queryString: any) => {
     .where("employee.role IN (:...allowedRoles)", { allowedRoles })
     .select([
       "employee.employee_id",
-      "employee.employee_name",
+      "employee.name",
       "employee.email",
       "employee.role",
       "employee.is_active",
@@ -82,7 +84,7 @@ export const getAllUsers = async (allowedRoles: string[], queryString: any) => {
     ]);
 
   if (name) {
-    queryBuilder = queryBuilder.andWhere("employee.employee_name ILIKE :name", {
+    queryBuilder = queryBuilder.andWhere("employee.name ILIKE :name", {
       name: `%${name}%`,
     });
   }
@@ -108,14 +110,14 @@ export const getOneUser = async (id: number, allowedRoles: string[]) => {
     .where("employee.employee_id = :id", { id })
     .select([
       "employee.employee_id",
-      "employee.employee_name",
+      "employee.name",
       "employee.email",
       "employee.role",
       "employee.is_active",
       "employee.image",
-      "employee.mobile_number",
+      "employee.mobile",
       "employee.account_created_at",
-      "employee.last_login",
+      "employee.last_login_at",
     ])
     .getOne();
 

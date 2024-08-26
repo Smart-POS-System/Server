@@ -8,6 +8,8 @@ import {
   deleteUser,
   activateUser,
   updateLoggedUser,
+  createAdmin,
+  updateImage,
 } from "../Controllers/employeeController";
 import {
   forgotPassword,
@@ -23,6 +25,7 @@ import {
   isUserExists,
   sendMailToUser,
   validateCreation,
+  validateMe,
   validateUser,
 } from "../Middleware/employeeMiddlewares";
 import { upload } from "../Utils/getImageLink";
@@ -51,13 +54,16 @@ router
 router
   .route("/:id")
   .get(protect, getUser, errorHandler)
-  .patch(protect, upload, validateUser, updateUser, errorHandler)
+  .patch(protect, validateUser, updateUser, errorHandler)
   .delete(protect, restrictTo("General Manager"), deleteUser, errorHandler);
+
+router.patch("updateImage/:id", protect, upload, updateImage, errorHandler);
 
 router.patch(
   "/updateMe/:id",
   protect,
   upload,
+  validateMe,
   validateUser,
   updateLoggedUser,
   errorHandler
@@ -79,6 +85,6 @@ router.post(
   errorHandler
 );
 
-//router.post("/createAdmin", createAdmin, errorHandler);
+router.post("/createAdmin", createAdmin, errorHandler);
 
 export { router as userRouter };

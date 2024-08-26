@@ -3,10 +3,12 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import crypto from "crypto";
-import { AppDataSource } from "../data-source";
-import { UserRole } from "../enums/role.enum";
+//import { AppDataSource } from "../data-source";
+
+import { Roles } from "../enums/roles.enum";
 import { sendMail } from "../Utils/userMail";
 import { Employee } from "../entities/Employee";
+import { AppDataSource } from "../index";
 
 dotenv.config({ path: "../../config.env" });
 
@@ -24,7 +26,7 @@ export const signToken = (user: any): string => {
 
   const payload = {
     id: user.employee_id,
-    name: user.employee_name,
+    name: user.name,
     email: user.email,
     role: user.role,
   };
@@ -91,17 +93,15 @@ export const changedPasswordAfter = function (
 
 export const isEligible = (userRole: any, role: any): boolean => {
   const roles1 = [
-    UserRole.GeneralManager,
-    UserRole.RegionalManager,
-    UserRole.StoreManager,
-    UserRole.StoreSupervisor,
-    UserRole.Cashier,
+    Roles.GENERAL_MANAGER,
+    Roles.REGIONAL_MANAGER,
+    Roles.STORE_MANAGER,
+    Roles.CASHIER,
   ];
   const roles2 = [
-    UserRole.GeneralManager,
-    UserRole.RegionalManager,
-    UserRole.InventoryManager,
-    UserRole.InventorySupervisor,
+    Roles.GENERAL_MANAGER,
+    Roles.REGIONAL_MANAGER,
+    Roles.INVENTORY_MANAGER,
   ];
 
   const roles =

@@ -20,30 +20,30 @@ process.on("uncaughtException", (err: Error) => {
 dotenv.config({ path: "./config.env" });
 
 //For local database
-// export const AppDataSource = new DataSource({
-//   type: process.env.DB_TYPE as any,
-//   host: process.env.DB_HOST,
-//   port: parseInt(process.env.DB_PORT || "", 10),
-//   username: process.env.DB_USER,
-//   password: process.env.DB_PASSWORD,
-//   database: process.env.DB_NAME,
-//   synchronize: true,
-//   logging: false,
-//   entities: [Employee, Customer],
-// });
-
-//For remote database
 export const AppDataSource = new DataSource({
   type: process.env.DB_TYPE as any,
-  host: process.env.PG_HOST,
-  port: parseInt(process.env.PG_PORT || "", 10),
-  username: process.env.PG_USER,
-  password: process.env.PG_PASSWORD,
-  database: process.env.PG_DB,
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT || "", 10),
+  username: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   synchronize: true,
-  logging: true,
+  logging: false,
   entities: [Customer, Employee, Location, Region, Product, Stock, Item, Bill],
 });
+
+//For remote database
+// export const AppDataSource = new DataSource({
+//   type: process.env.DB_TYPE as any,
+//   host: process.env.PG_HOST,
+//   port: parseInt(process.env.PG_PORT || "", 10),
+//   username: process.env.PG_USER,
+//   password: process.env.PG_PASSWORD,
+//   database: process.env.PG_DB,
+//   synchronize: true,
+//   logging: true,
+//   entities: [Customer, Employee, Location, Region, Product, Stock, Item, Bill],
+// });
 
 AppDataSource.initialize()
   .then(() => {
