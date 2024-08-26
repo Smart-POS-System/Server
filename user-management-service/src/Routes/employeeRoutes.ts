@@ -57,7 +57,7 @@ router
   .patch(protect, validateUser, updateUser, errorHandler)
   .delete(protect, restrictTo("General Manager"), deleteUser, errorHandler);
 
-router.patch("updateImage/:id", protect, upload, updateImage, errorHandler);
+router.patch("/updateImage/:id", protect, upload, updateImage, errorHandler);
 
 router.patch(
   "/updateMe/:id",
