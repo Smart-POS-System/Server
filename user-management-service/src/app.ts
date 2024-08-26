@@ -14,9 +14,15 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(cookieParser());
 
+// @ts-ignore
+import { specs, swaggerUi } from "./swagger.ts";
+
+app.use(cookieParser());
 app.use(express.json({ limit: "10kb" }));
+
+//connection swagger API-docs
+//app.use("/api-docs/user-service", swaggerUi.serve, swaggerUi.setup(specs));
 
 const limiter = rateLimit({
   max: 200,

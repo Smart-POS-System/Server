@@ -89,37 +89,37 @@ services: #define the containers to be run
           target: /app
           action: sync
 
-  sales-and-payment-srv:
-    container_name: sales-and-payment-service
-    build:
-      context: ./sales-and-payment-service
-      dockerfile: Dockerfile
+  # sales-and-payment-srv:
+  #   container_name: sales-and-payment-service
+  #   build:
+  #     context: ./sales-and-payment-service
+  #     dockerfile: Dockerfile
 
-    ports:
-      - "3011:3000"
-    environment:
-      - DB_TYPE=postgres
-      - PG_HOST=db
-      - PG_PORT=5432
-      - PG_USER=postgres
-      - PG_PASSWORD=postgres
-      - PG_DB=postgres
-    depends_on:
-      - db
-      - user-srv
-      - product-srv
-      - inventory-srv
+  #   ports:
+  #     - "3011:3000"
+  #   environment:
+  #     - DB_TYPE=postgres
+  #     - PG_HOST=db
+  #     - PG_PORT=5432
+  #     - PG_USER=postgres
+  #     - PG_PASSWORD=postgres
+  #     - PG_DB=postgres
+  #   depends_on:
+  #     - db
+  #     - user-srv
+  #     - product-srv
+  #     - inventory-srv
 
-    develop:
-      watch:
-        - path: ./inventory-service/package.json
-          action: rebuild
-        - path: ./inventory-service/package-lock.json
-          action: rebuild
+  #   develop:
+  #     watch:
+  #       - path: ./inventory-service/package.json
+  #         action: rebuild
+  #       - path: ./inventory-service/package-lock.json
+  #         action: rebuild
 
-        - path: ./inventory-service
-          target: /app
-          action: sync
+  #       - path: ./inventory-service
+  #         target: /app
+  #         action: sync
 
   email-srv:
     container_name: email-service
