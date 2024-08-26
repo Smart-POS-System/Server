@@ -5,9 +5,9 @@ import { app } from "./app";
 const start = async () => {
   console.log("Starting up...!!");
   //checking for envs
-  if (!process.env.PG_DB) {
-    throw new Error("PG_DB must be defined");
-  }
+  // if (!process.env.PG_DB) {
+  //   throw new Error("PG_DB must be defined");
+  // }
   //establishing db connection
   try {
     AppDataSource.initialize()
@@ -20,11 +20,11 @@ const start = async () => {
   } catch (err) {
     console.error(err);
   }
-  app.use(
-    "/api-docs/inventory-service"
-    // swaggerUi.serve,
-    // swaggerUi.setup(specs)
-  );
+  // app.use(
+  //   "/api-docs/inventory-service",
+  //   swaggerUi.serve,
+  //   swaggerUi.setup(specs)
+  // );
   const port = 3011;
   //startig server
   app.listen(port, () => {

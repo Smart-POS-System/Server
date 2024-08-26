@@ -34,7 +34,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /login:
+ * /api/v1/users/login:
  *   post:
  *     summary: User login
  *     requestBody:
@@ -57,7 +57,6 @@ const router = express.Router();
 router.post("/login", login, errorHandler);
 
 router.post("/forgotPassword", protect, forgotPassword, errorHandler);
-
 
 /**
  * @swagger
@@ -168,7 +167,6 @@ router
     errorHandler
   );
 
-
 router
   .route("/:id")
   .get(protect, getUser, errorHandler)
@@ -220,7 +218,7 @@ router.post(
  *       404:
  *         description: User not found
  */
-router.get("/:id", protect, getOneUser, errorHandler);
+router.get("/:id", protect, getUser, errorHandler);
 
 /**
  * @swagger
@@ -246,8 +244,7 @@ router.get("/:id", protect, getOneUser, errorHandler);
  *       400:
  *         description: Invalid request
  */
-router.post("/createUser", validateCreation, createUserByUser, errorHandler);
-
+//router.post("/createUser", validateCreation, createUserByUser, errorHandler);
 
 router.post("/createAdmin", createAdmin, errorHandler);
 
