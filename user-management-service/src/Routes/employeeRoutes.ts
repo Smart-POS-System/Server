@@ -1,10 +1,15 @@
 import express from "express";
 import {
-  // createAdmin,
   createUserByAdmin,
-  createUserByUser,
-  getOneUser,
+  updatePasswordByUser,
+  getUser,
   getUsers,
+  updateUser,
+  deleteUser,
+  activateUser,
+  updateLoggedUser,
+  createAdmin,
+  updateImage,
 } from "../Controllers/employeeController";
 import {
   forgotPassword,
@@ -20,8 +25,10 @@ import {
   isUserExists,
   sendMailToUser,
   validateCreation,
+  validateMe,
   validateUser,
 } from "../Middleware/employeeMiddlewares";
+import { upload } from "../Utils/getImageLink";
 
 const router = express.Router();
 
@@ -48,6 +55,9 @@ const router = express.Router();
  *         description: Invalid credentials
  */
 router.post("/login", login, errorHandler);
+
+router.post("/forgotPassword", protect, forgotPassword, errorHandler);
+
 
 /**
  * @swagger
@@ -97,6 +107,7 @@ router.post("/forgotPassword", forgotPassword, errorHandler);
  *       400:
  *         description: Invalid token or request
  */
+
 router.patch("/resetPassword/:token", resetPassword, errorHandler);
 
 /**
@@ -148,13 +159,49 @@ router
   .get(protect, getUsers, errorHandler)
   .post(
     protect,
-    isUserExists,
+    upload,
     validateUser,
+    isUserExists,
     restrictToCreate,
     sendMailToUser,
     createUserByAdmin,
     errorHandler
   );
+
+
+router
+  .route("/:id")
+  .get(protect, getUser, errorHandler)
+  .patch(protect, validateUser, updateUser, errorHandler)
+  .delete(protect, restrictTo("General Manager"), deleteUser, errorHandler);
+
+router.patch("/updateImage/:id", protect, upload, updateImage, errorHandler);
+
+router.patch(
+  "/updateMe/:id",
+  protect,
+  upload,
+  validateMe,
+  validateUser,
+  updateLoggedUser,
+  errorHandler
+);
+
+router.patch(
+  "/activate/:id",
+  protect,
+  restrictTo("General Manager"),
+  activateUser,
+  errorHandler
+);
+
+router.post(
+  "/updatePassword",
+  protect,
+  validateCreation,
+  updatePasswordByUser,
+  errorHandler
+);
 
 /**
  * @swagger
@@ -201,6 +248,7 @@ router.get("/:id", protect, getOneUser, errorHandler);
  */
 router.post("/createUser", validateCreation, createUserByUser, errorHandler);
 
-//router.post("/createAdmin", createAdmin);
+
+router.post("/createAdmin", createAdmin, errorHandler);
 
 export { router as userRouter };
