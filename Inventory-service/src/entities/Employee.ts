@@ -22,6 +22,12 @@ export class Employee {
   @Column()
   name: string;
 
+  @Column({ nullable: true })
+  image: string;
+
+  @Column({ nullable: true })
+  mobile: string;
+
   @Column({ unique: true })
   email: string;
 
@@ -55,6 +61,12 @@ export class Employee {
 
   @Column({ type: "boolean", default: true })
   temporary: boolean;
+
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+  account_created_at: Date;
+
+  @Column({ type: "timestamp", nullable: true })
+  last_login_at: Date | null;
 
   @Column({ type: "timestamp", nullable: true })
   password_changed_at: Date | null;

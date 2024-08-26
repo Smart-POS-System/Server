@@ -57,7 +57,6 @@ export class Bill {
   @JoinColumn({ name: "customer_id" })
   customer: Customer | null;
 
-  @ManyToMany(() => Item, (item) => item.bills)
-  @JoinTable()
-  items: Item[];
+  @Column("jsonb")
+  items: any;
 }

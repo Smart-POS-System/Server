@@ -1,46 +1,49 @@
 import { NextFunction, Request, Response } from "express";
-import bcrypt from "bcryptjs";
 import AppError from "../Utils/appError";
 import catchAsync from "../Utils/catchAsync";
-import { AppDataSource } from "../index";
-import { Employee } from "../entity/Employee";
-import { Role } from "../entity/Role";
-import { getCurrentUserRoleInfo } from "../Services/emplyeeServices";
+import {
+  activateOneUser,
+  createUser,
+  deleteOneUser,
+  getAllUsers,
+  getOneUser,
+  getUserByEmailAndCurrentPassword,
+  updateMe,
+  updateOneUser,
+  updateUserPassword,
+} from "../Services/emplyeeServices";
+import { getCurrentUserRoleInfo } from "../Utils/getUserInfo";
+import { setFeatures } from "../Utils/features";
+import { getImageLink } from "../Utils/getImageLink";
+import { AppDataSource } from "..";
+import { Employee } from "../entities/Employee";
+import bcrypt from "bcryptjs";
 
 export const createUserByAdmin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { name, email, role_name } = req.body;
+      const { name, email, role, phone } = req.body;
 
-      const userRepository = AppDataSource.getRepository(Employee);
-      const roleRepository = AppDataSource.getRepository(Role);
-
-      const role = await roleRepository.findOneBy({ role_name });
-
-      if (!role) {
-        return next(new AppError("Role not found", 400));
+      let imageLink = null;
+      if (req.file || req.body.image) {
+        imageLink = await getImageLink(req);
+        if (!imageLink) {
+          return next(new AppError("Couldn't upload image", 400));
+        }
       }
 
-      const tempPassword = `tempPassword${Date.now()}${Math.floor(
-        Math.random() * 10000
-      )}`;
-      const hashedPassword = await bcrypt.hash(tempPassword, 12);
-
-      const newUser = userRepository.create({
-        employee_name: name,
+      const user = await createUser(
+        name,
         email,
-        password: hashedPassword,
         role,
-        temporary: true,
-        is_active: false,
-      });
-
-      await userRepository.save(newUser);
+        phone,
+        imageLink || null
+      );
 
       res.status(201).json({
         status: "success",
         data: {
-          user: { ...newUser, password: undefined },
+          user: { ...user, password: undefined },
           message: "Sent email to user to set username and password",
         },
       });
@@ -50,45 +53,37 @@ export const createUserByAdmin = catchAsync(
   }
 );
 
-export const createUserByUser = catchAsync(
+export const updatePasswordByUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { password, passwordConfirm, email } = req.body;
+    const { currentPassword, password, passwordConfirm } = req.body;
 
-    if (password.startsWith("tempPassword")) {
-      return next(new AppError("Please set another word as the password", 400));
+    if (!req.user || !req.user.email) {
+      return next(new AppError("Couldn't authenticate the user", 404));
     }
 
     if (password !== passwordConfirm) {
       return next(new AppError("Passwords do not match", 400));
     }
 
-    if (password.length <= 8) {
+    if (password.length < 8) {
       return next(new AppError("Password must be at least 8 characters", 400));
     }
 
-    const userRepository = AppDataSource.getRepository(Employee);
-
-    const user = await userRepository
-      .createQueryBuilder("user")
-      .where("user.email = :email", { email })
-      .andWhere("user.temporary = true")
-      .getOne();
+    const user = await getUserByEmailAndCurrentPassword(
+      req.user.email,
+      currentPassword
+    );
 
     if (!user) {
-      return next(new AppError("Please enter the correct email address", 404));
+      return next(new AppError("User is not found", 404));
     }
 
-    user.password = await bcrypt.hash(password, 12);
-    user.temporary = false;
-    user.is_active = true;
-    user.password_changed_at = new Date();
-
-    await userRepository.save(user);
+    const updatedUser = await updateUserPassword(user, password);
 
     res.status(201).json({
       status: "success",
       data: {
-        user: { ...user, password: undefined },
+        user: { ...updatedUser, password: undefined },
         message: "Account created successfully",
       },
     });
@@ -98,20 +93,17 @@ export const createUserByUser = catchAsync(
 export const getUsers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userRepository = AppDataSource.getRepository(Employee);
+      const allowedRoles = getCurrentUserRoleInfo(req.user);
+      const queryString = setFeatures(req.query);
 
-      const allowedRoles = getCurrentUserRoleInfo(req);
+      const users = await getAllUsers(allowedRoles, queryString);
 
-      const users = await userRepository
-        .createQueryBuilder("employee")
-        .leftJoinAndSelect("employee.role", "role")
-        .where("role.role_name IN (:...allowedRoles)", { allowedRoles })
-        .select(["employee.employee_name", "employee.email", "role.role_name"])
-        .getMany();
-
+      if (!users || users.length === 0) {
+        return next(new AppError("No users found", 404));
+      }
+      console.log("users.........", users);
       res.status(200).json({
         status: "success",
-        length: users.length,
         data: {
           users,
         },
@@ -122,27 +114,47 @@ export const getUsers = catchAsync(
   }
 );
 
-export const getOneUser = catchAsync(
+export const getUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userRepository = AppDataSource.getRepository(Employee);
+      const { id } = req.params;
+      const allowedRoles = getCurrentUserRoleInfo(req.user);
 
-      const allowedRoles = getCurrentUserRoleInfo(req);
-      let query = userRepository
-        .createQueryBuilder("employee")
-        .leftJoinAndSelect("employee.role", "role")
-        .where("role.role_name IN (:...allowedRoles)", { allowedRoles })
-        .select(["employee.employee_name", "employee.email", "role.role_name"]);
+      const user = await getOneUser(parseInt(id), allowedRoles);
 
-      if (req.params.id) {
-        query = query.andWhere("employee.employee_id = :employee_id", {
-          employee_id: req.params.id,
-        });
-      } else {
-        return next(new AppError("User not found", 400));
+      if (!user) {
+        return next(
+          new AppError("You don't have access or user not found", 404)
+        );
       }
+      console.log("fucking getUser", user);
+      res.status(200).json({
+        status: "success",
+        data: {
+          user,
+        },
+      });
+    } catch (err: any) {
+      return next(new AppError(err.message, 400));
+    }
+  }
+);
 
-      const user = await query.getOne();
+export const updateUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const { name, email, role, phone } = req.body;
+      const allowedRoles = getCurrentUserRoleInfo(req.user);
+
+      const userParams = {
+        name,
+        email,
+        role,
+        mobile: phone,
+      };
+
+      const user = await updateOneUser(parseInt(id), allowedRoles, userParams);
 
       if (!user) {
         return next(
@@ -162,13 +174,131 @@ export const getOneUser = catchAsync(
   }
 );
 
-/*export const createAdmin = catchAsync(
+export const updateImage = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, role_name, password, passwordConfirm, email } = req.body;
+    try {
+      const { id } = req.params;
+      const allowedRoles = getCurrentUserRoleInfo(req.user);
+      let imageLink = null;
 
-    if (password.startsWith("tempPassword")) {
-      return next(new AppError("Please set another word as the password", 400));
+      if (req.file || req.body.image) {
+        imageLink = await getImageLink(req);
+        if (!imageLink) {
+          return next(new AppError("Couldn't upload image", 400));
+        }
+      }
+
+      const userParams = {
+        image: imageLink,
+      };
+
+      const user = await updateOneUser(parseInt(id), allowedRoles, userParams);
+
+      if (!user) {
+        return next(
+          new AppError("You don't have access or user not found", 404)
+        );
+      }
+
+      res.status(200).json({
+        status: "success",
+        data: {
+          user,
+        },
+      });
+    } catch (err: any) {
+      return next(new AppError(err.message, 400));
     }
+  }
+);
+
+export const deleteUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+
+      const status = await deleteOneUser(parseInt(id));
+
+      if (!status) {
+        return next(
+          new AppError("You don't have access or user not found", 404)
+        );
+      }
+
+      res.status(200).json({
+        status: "success",
+        message: "User account deactivated successfully",
+      });
+    } catch (err: any) {
+      return next(new AppError(err.message, 400));
+    }
+  }
+);
+
+export const activateUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+
+      const status = await activateOneUser(parseInt(id));
+
+      if (!status) {
+        return next(
+          new AppError("You don't have access or user not found", 404)
+        );
+      }
+
+      res.status(200).json({
+        status: "success",
+        message: "User account activated successfully",
+      });
+    } catch (err: any) {
+      return next(new AppError(err.message, 400));
+    }
+  }
+);
+
+export const updateLoggedUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const { name, email, phone } = req.body;
+      let imageLink = null;
+      if (req.file || req.body.image) {
+        imageLink = await getImageLink(req);
+        if (!imageLink) {
+          return next(new AppError("Couldn't upload image", 400));
+        }
+      }
+
+      const user = await updateMe(parseInt(id), {
+        name,
+        email,
+        mobile: phone,
+        ...(imageLink && { image: imageLink }),
+      });
+
+      if (!user) {
+        return next(
+          new AppError("You don't have access or user not found", 404)
+        );
+      }
+
+      res.status(200).json({
+        status: "success",
+        data: {
+          user,
+        },
+      });
+    } catch (err: any) {
+      return next(new AppError(err.message, 400));
+    }
+  }
+);
+
+export const createAdmin = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { name, role, password, passwordConfirm, email, mobile } = req.body;
 
     if (password !== passwordConfirm) {
       return next(new AppError("Passwords do not match", 400));
@@ -179,23 +309,17 @@ export const getOneUser = catchAsync(
     }
 
     const userRepository = AppDataSource.getRepository(Employee);
-    const roleRepository = AppDataSource.getRepository(Role);
-
-    const role = await roleRepository.findOneBy({ role_name });
-
-    if (!role) {
-      return next(new AppError("Role not found", 400));
-    }
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const newUser = userRepository.create({
-      employee_name: name,
+      name,
       email,
       password: hashedPassword,
       role,
       temporary: false,
       is_active: true,
+      mobile,
     });
 
     await userRepository.save(newUser);
@@ -208,4 +332,4 @@ export const getOneUser = catchAsync(
       },
     });
   }
-); */
+);

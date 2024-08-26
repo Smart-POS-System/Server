@@ -12,11 +12,11 @@ import { Product } from "./entities/Product";
 import { Item } from "./entities/Item";
 import { Bill } from "./entities/Bill";
 
-const db_host = env.PG_HOST;
-const db_port = parseInt(env.PG_PORT);
-const db_name = env.PG_DB;
-const db_user = env.PG_USER;
-const db_password = env.PG_PASSWORD;
+const db_host = env.PG_HOST || "localhost"; // Provide a default value
+const db_port = parseInt(env.PG_PORT!) || 5432; // Use the non-null assertion and a default value
+const db_name = env.PG_DB || "mydatabase"; // Provide a default value
+const db_user = env.PG_USER || "user"; // Provide a default value
+const db_password = env.PG_PASSWORD || "password"; // Provide a default value
 
 export const AppDataSource = new DataSource({
   type: "postgres",
