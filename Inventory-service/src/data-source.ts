@@ -18,13 +18,29 @@ const db_name = env.PG_DB || "mydatabase"; // Provide a default value
 const db_user = env.PG_USER || "user"; // Provide a default value
 const db_password = env.PG_PASSWORD || "password"; // Provide a default value
 
+// Remote database config
+// export const AppDataSource = new DataSource({
+//   type: "postgres",
+//   host: db_host,
+//   port: db_port,
+//   username: db_user,
+//   password: db_password,
+//   database: db_name,
+//   synchronize: false,
+//   logging: true,
+//   entities: [Customer, Employee, Location, Region, Product, Stock, Item, Bill],
+//   migrations: [],
+//   subscribers: [],
+// });
+
+// Local database config
 export const AppDataSource = new DataSource({
   type: "postgres",
-  host: db_host,
-  port: db_port,
-  username: db_user,
-  password: db_password,
-  database: db_name,
+  host: "localhost",
+  port: 5400,
+  username: "postgres",
+  password: "postgres",
+  database: "postgres",
   synchronize: false,
   logging: true,
   entities: [Customer, Employee, Location, Region, Product, Stock, Item, Bill],
