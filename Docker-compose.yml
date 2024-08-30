@@ -15,8 +15,10 @@ services: #define the containers to be run
       - PG_PASSWORD=postgres
       - PG_DB=postgres
     depends_on:
-      - db
-      - user-srv
+      db:
+        condition: service_healthy
+      user-srv:
+        condition: service_started
 
     develop:
       watch:
@@ -45,7 +47,8 @@ services: #define the containers to be run
       - PG_PASSWORD=postgres
       - PG_DB=postgres
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
     develop:
       watch:
@@ -74,9 +77,10 @@ services: #define the containers to be run
       - PG_PASSWORD=postgres
       - PG_DB=postgres
     depends_on:
-      - db
-      - user-srv
-      - product-srv
+      db:
+        condition: service_healthy
+      user-srv:
+        condition: service_started
 
     develop:
       watch:
@@ -105,10 +109,12 @@ services: #define the containers to be run
       - PG_PASSWORD=postgres
       - PG_DB=postgres
     depends_on:
-      - db
-      - user-srv
-      - product-srv
-      - inventory-srv
+      db:
+        condition: service_healthy
+      user-srv:
+        condition: service_started
+      inventory-srv:
+        condition: service_started
 
     develop:
       watch:
@@ -159,8 +165,10 @@ services: #define the containers to be run
       - PG_PASSWORD=postgres
       - PG_DB=postgres
     depends_on:
-      - db
-      - user-srv
+      user-srv:
+        condition: service_started
+      db:
+        condition: service_healthy
 
     develop:
       watch:
@@ -185,6 +193,11 @@ services: #define the containers to be run
       POSTGRES_DB: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -p 5432 -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   pgdata: {}
