@@ -15,11 +15,7 @@ const router = express.Router();
 
 router.post(
   "/newOrder",
-  // [
-  //   body("bill_id").not().isEmpty().withMessage("bill_id must be provided"),
-  //   body("status").not().isEmpty().withMessage("status must be provided"),
-  // ],
-  // validateRequest,
+
   BillController.createNewOrder
 );
 //async (req: Request, res: Response) => {
