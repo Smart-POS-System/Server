@@ -20,13 +20,6 @@ services: #define the containers to be run
       user-srv:
         condition: service_started
 
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/products", "||", "exit", "1"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
-
     develop:
       watch:
         - path: ./product-catalugue-service/package.json
@@ -88,8 +81,6 @@ services: #define the containers to be run
         condition: service_healthy
       user-srv:
         condition: service_started
-      product-srv:
-        condition: service_healthy
 
     develop:
       watch:
@@ -122,8 +113,6 @@ services: #define the containers to be run
         condition: service_healthy
       user-srv:
         condition: service_started
-      product-srv:
-        condition: service_healthy
       inventory-srv:
         condition: service_started
 

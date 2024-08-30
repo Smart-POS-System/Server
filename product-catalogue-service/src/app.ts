@@ -1,4 +1,6 @@
-import { express } from "express";
+const express = require("express");
+const cors = require("cors");
+const multer = require("multer");
 import * as bodyParser from "body-parser";
 import { Routes } from "./routes";
 import { Request } from "express";
@@ -6,6 +8,16 @@ import { Response } from "express";
 import { NextFunction } from "express";
 
 const app = express();
+const upload = multer();
+
+app.use(
+  cors({
+    origin: "http://localhost:3000", // Only allow requests from this origin
+    methods: ["GET", "POST"], // Allow specific HTTP methods
+    credentials: true, // Allow cookies to be sent with requests
+  })
+);
+app.use(upload.none());
 app.use(bodyParser.json());
 
 // register express routes from defined application routes
