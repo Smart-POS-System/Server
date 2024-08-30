@@ -19,6 +19,7 @@ export class BillController {
         customer_id,
         items,
         paymentmethod,
+        status,
       } = req.body;
 
       //const status = Bill_Status.PENDING;
@@ -34,6 +35,10 @@ export class BillController {
         //const status = Bill_Status.PENDING;
         payment_method = Payment_Methods.CASH;
       }
+      let BillStatus = Bill_Status.PROCESSED;
+      if (status === "stashed") {
+        BillStatus = Bill_Status.PENDING;
+      }
 
       // Call the service method and pass the extracted data
       const newBill = await BillService.createNewBill(
@@ -43,7 +48,7 @@ export class BillController {
         store_id,
         customer_id,
         items,
-        Bill_Status.PENDING
+        BillStatus
       );
 
       res
