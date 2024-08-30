@@ -20,11 +20,11 @@ const db_name = process.env.PG_DB;
 const db_user = process.env.PG_USER;
 const db_password = process.env.PG_PASSWORD;
 
-// console.log(`Database Host: ${db_host}`);
-// console.log(`Database Port: ${db_port}`);
-// console.log(`Database Name: ${db_name}`);
-// console.log(`Database User: ${db_user}`);
-// console.log(`Database Password: ${db_password}`);
+console.log(`Database Host: ${db_host}`);
+console.log(`Database Port: ${db_port}`);
+console.log(`Database Name: ${db_name}`);
+console.log(`Database User: ${db_user}`);
+console.log(`Database Password: ${db_password}`);
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -39,3 +39,17 @@ export const AppDataSource = new DataSource({
   migrations: [],
   subscribers: [],
 });
+//for local use
+// export const AppDataSource = new DataSource({
+//   type: "postgres",
+//   host: "localhost",
+//   port: 5430,
+//   username: "postgres",
+//   password: "postgres",
+//   database: "postgres",
+//   synchronize: false,
+//   logging: true,
+//   entities: [Customer, Employee, Location, Region, Product, Stock, Item, Bill],
+//   migrations: [],
+//   subscribers: [],
+// });
