@@ -118,7 +118,7 @@ router.patch("/resetPassword/:token", resetPassword, errorHandler);
  *       200:
  *         description: Successful logout
  */
-router.get("/logout", logout);
+router.post("/logout", logout);
 
 /**
  * @swagger

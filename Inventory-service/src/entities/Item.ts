@@ -4,13 +4,10 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  ManyToMany,
   PrimaryGeneratedColumn,
-  JoinTable,
 } from "typeorm";
 import { Product } from "./Product";
 import { Stock } from "./Stock";
-import { Bill } from "./Bill";
 
 @Entity()
 export class Item {

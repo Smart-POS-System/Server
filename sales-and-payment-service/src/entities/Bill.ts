@@ -3,15 +3,12 @@ import {
   Column,
   Entity,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Employee } from "./Employee";
 import { Customer } from "./Customer";
 import { Location } from "./Location";
-import { Item } from "./Item";
 import { Bill_Status, Payment_Methods } from "../enums/bills.enum";
 
 @Entity()
