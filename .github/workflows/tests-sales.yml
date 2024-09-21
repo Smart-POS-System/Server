@@ -1,0 +1,15 @@
+name: tests-sales
+
+on:
+  pull_request:
+
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          cd sales-and-payment-service
+          npm install
+          npm run test:ci
