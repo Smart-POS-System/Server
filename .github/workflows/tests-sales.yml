@@ -12,4 +12,4 @@ jobs:
       - run: |
           cd sales-and-payment-service
           npm install
-          npm run test:ci
+          npm run test
