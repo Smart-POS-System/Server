@@ -20,7 +20,7 @@ jobs:
       
      
       - name: Install and test ${{ matrix.service }}
-        if: contains(github.event.pull_request.changed_files, matrix.service)
+        # if: contains(github.event.pull_request.changed_files, matrix.service)
         run: |
           cd ${{ matrix.service }}
           npm install
