@@ -2,10 +2,10 @@ name: tests
 
 on:
   pull_request:
-    paths:
-      - 'sales-and-payment-service/**'
-      - 'inventory-service/**'
-      - 'user-service/**'
+   # paths:
+    #  - 'sales-and-payment-service/**'
+    #  - 'inventory-service/**'
+    #  - 'user-service/**'
 
 jobs:
   tests:
@@ -18,9 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-     
       - name: Install and test ${{ matrix.service }}
-        # if: contains(github.event.pull_request.changed_files, matrix.service)
         run: |
           cd ${{ matrix.service }}
           npm install
