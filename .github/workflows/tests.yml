@@ -2,10 +2,10 @@ name: tests
 
 on:
   pull_request:
-   # paths:
-    #  - 'sales-and-payment-service/**'
-    #  - 'inventory-service/**'
-    #  - 'user-service/**'
+    paths:
+      - 'sales-and-payment-service/**'
+      - 'inventory-service/**'
+      - 'user-service/**'
 
 jobs:
   tests:
