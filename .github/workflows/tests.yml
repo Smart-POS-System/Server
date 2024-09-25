@@ -4,8 +4,8 @@ on:
   pull_request:
     paths:
       - 'sales-and-payment-service/**'
-      - 'inventory-service/**'
-      - 'user-service/**'
+      # - 'inventory-service/**'
+      # - 'user-service/**'
 
 jobs:
   tests:
