@@ -163,9 +163,12 @@ export const checkForUserToResetPassword = async (hashedToken: string) => {
 
 export const saveNewPassword = async (user: any, password: string) => {
   const userRepository = AppDataSource.getRepository(Employee);
-  user.password = password;
+  const hashedPassword = await bcrypt.hash(password, 12);
+  user.password = hashedPassword;
   user.password_reset_token = null;
   user.password_reset_token = null;
+  user.password_changed_at = new Date();
+  user.temporary = false;
   await userRepository.save(user);
 };
 
@@ -175,7 +178,9 @@ export const sendEmailToUser = async (
   host: string | undefined,
   email: string
 ) => {
-  const resetURL = `${protocol}://${host}/api/v1/users/resetPassword/${resetToken}`;
+  const resetURL = `${protocol}://${
+    "localhost:3001" || host
+  }/reset/${resetToken}`;
   const message = `Forgot your password? Go to this link and enter your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
 
   await sendMail({
