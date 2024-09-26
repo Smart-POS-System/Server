@@ -25,3 +25,15 @@ export const getOneCustomer = async (mobile: string) => {
 
   return customer;
 };
+
+export const createCustomer = async (data: any) => {
+  const customerRepository = AppDataSource.getRepository(Customer);
+  const customer = customerRepository.create({
+    name: data.name,
+    mobile: data.phone,
+    address: data.address,
+  });
+  await customerRepository.save(customer);
+
+  return customer;
+};
