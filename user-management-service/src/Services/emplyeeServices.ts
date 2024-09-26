@@ -81,6 +81,7 @@ export const getAllUsers = async (allowedRoles: string[], queryString: any) => {
       "employee.role",
       "employee.is_active",
       "employee.image",
+      "employee.location",
     ]);
 
   if (name) {
@@ -118,6 +119,7 @@ export const getOneUser = async (id: number, allowedRoles: string[]) => {
       "employee.mobile",
       "employee.account_created_at",
       "employee.last_login_at",
+      "employee.temporary",
     ])
     .getOne();
 

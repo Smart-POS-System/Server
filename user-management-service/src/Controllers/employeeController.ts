@@ -56,9 +56,17 @@ export const createUserByAdmin = catchAsync(
 export const updatePasswordByUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { currentPassword, password, passwordConfirm } = req.body;
-
     if (!req.user || !req.user.email) {
       return next(new AppError("Couldn't authenticate the user", 404));
+    }
+
+    if (!currentPassword || !password || !passwordConfirm) {
+      return next(
+        new AppError(
+          "Please provide current password, new password and confirm password",
+          400
+        )
+      );
     }
 
     if (password !== passwordConfirm) {
@@ -84,7 +92,7 @@ export const updatePasswordByUser = catchAsync(
       status: "success",
       data: {
         user: { ...updatedUser, password: undefined },
-        message: "Account created successfully",
+        message: "Password updated successfully",
       },
     });
   }
@@ -101,7 +109,7 @@ export const getUsers = catchAsync(
       if (!users || users.length === 0) {
         return next(new AppError("No users found", 404));
       }
-      console.log("users.........", users);
+
       res.status(200).json({
         status: "success",
         data: {
@@ -127,7 +135,7 @@ export const getUser = catchAsync(
           new AppError("You don't have access or user not found", 404)
         );
       }
-      console.log("fucking getUser", user);
+
       res.status(200).json({
         status: "success",
         data: {

@@ -19,6 +19,37 @@ import {
 
 dotenv.config({ path: "../../config.env" });
 
+export const checkMail = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { email } = req.body;
+    if (!email) {
+      return next(new AppError("Please provide email", 400));
+    }
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    if (!emailRegex.test(email)) {
+      return next(new AppError("Please provide a valid email address", 400));
+    }
+
+    const user = await isUserExist(email);
+
+    if (!user) {
+      return next(new AppError("There is no user with email address.", 404));
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        email: user.email,
+        role: user.role,
+      },
+    });
+
+    next();
+  }
+);
+
 export const login = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
@@ -31,6 +62,10 @@ export const login = catchAsync(
 
     if (!user || !(await correctPassword(password, user.password))) {
       return next(new AppError("Incorrect email or password", 401));
+    }
+
+    if (!user.is_active) {
+      return next(new AppError("Your account is currently deactivated", 401));
     }
 
     const token = createSendToken(user, 200, res);

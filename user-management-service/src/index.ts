@@ -11,7 +11,6 @@ import { Stock } from "./entities/Stock";
 import { Item } from "./entities/Item";
 import { Bill } from "./entities/Bill";
 
-
 // import { Employee } from "./entity/Employee";
 // import { Customer } from "./entity/Customer";
 
@@ -19,7 +18,6 @@ import { Bill } from "./entities/Bill";
 //import { insertRoles } from "./tests/insertRoles";
 //import { insertEmployees } from "./tests/insertEmployees";
 import { specs, swaggerUi } from "./swagger";
-
 
 process.on("uncaughtException", (err: Error) => {
   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");

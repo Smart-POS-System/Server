@@ -12,6 +12,7 @@ import {
   updateImage,
 } from "../Controllers/employeeController";
 import {
+  checkMail,
   forgotPassword,
   login,
   logout,
@@ -56,7 +57,7 @@ const router = express.Router();
  */
 router.post("/login", login, errorHandler);
 
-router.post("/forgotPassword", protect, forgotPassword, errorHandler);
+//router.post("/forgotPassword", protect, forgotPassword, errorHandler);
 
 /**
  * @swagger
@@ -78,7 +79,7 @@ router.post("/forgotPassword", protect, forgotPassword, errorHandler);
  *       400:
  *         description: Invalid request
  */
-router.post("/forgotPassword", forgotPassword, errorHandler);
+router.post("/forgotPassword", protect, forgotPassword, errorHandler);
 
 /**
  * @swagger
@@ -118,7 +119,7 @@ router.patch("/resetPassword/:token", resetPassword, errorHandler);
  *       200:
  *         description: Successful logout
  */
-router.get("/logout", logout);
+router.post("/logout", logout);
 
 /**
  * @swagger
@@ -200,6 +201,8 @@ router.post(
   updatePasswordByUser,
   errorHandler
 );
+
+router.post("/checkMail", checkMail, errorHandler);
 
 /**
  * @swagger
