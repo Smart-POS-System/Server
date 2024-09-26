@@ -102,7 +102,7 @@ export const getAllUsers = async (allowedRoles: string[], queryString: any) => {
 
   return users;
 };
-
+//eemployee.location id
 export const getOneUser = async (id: number, allowedRoles: string[]) => {
   const userRepository = AppDataSource.getRepository(Employee);
   const user = await userRepository
@@ -119,6 +119,7 @@ export const getOneUser = async (id: number, allowedRoles: string[]) => {
       "employee.mobile",
       "employee.account_created_at",
       "employee.last_login_at",
+      "employee.location_id",
       "employee.temporary",
     ])
     .getOne();

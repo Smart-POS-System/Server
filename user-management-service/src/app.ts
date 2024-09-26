@@ -9,8 +9,8 @@ import { customerRouter } from "./Routes/customerRoutes";
 const app = express();
 
 const corsOptions = {
-  origin: "http://localhost:3001",
-  credentials: true,
+  origin: "http://localhost:3000", // Your frontend URL
+  credentials: true, // Enable the Access-Control-Allow-Credentials header
 };
 
 app.use(cors(corsOptions));

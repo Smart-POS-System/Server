@@ -1,0 +1,26 @@
+name: tests
+
+on:
+  pull_request:
+    #paths:
+     # - 'sales-and-payment-service/**'
+      # - 'inventory-service/**'
+      # - 'user-service/**'
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service: ['sales-and-payment-service'] 
+        #, 'inventory-service', 'user-service']
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Install and test ${{ matrix.service }}
+        run: |
+          cd ${{ matrix.service }}
+          npm install
+          npm run test

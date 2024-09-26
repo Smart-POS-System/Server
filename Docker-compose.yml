@@ -100,7 +100,7 @@ services: #define the containers to be run
       dockerfile: Dockerfile
 
     ports:
-      - "3011:3000"
+      - "3011:3011"
     environment:
       - DB_TYPE=postgres
       - PG_HOST=db
