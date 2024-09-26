@@ -1,11 +1,10 @@
 import { Request } from "express";
 import { Response } from "express";
 import { NextFunction } from "express";
+import { isProductValid } from "../helpers/isProductValid";
 
 const validateProduct = (req: Request, res: Response, next: NextFunction) => {
-  const { product_name, unit_weight } = req.body;
-
-  if (product_name != null && unit_weight != null) {
+  if (isProductValid(req.body)) {
     next();
   } else {
     return res

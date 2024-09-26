@@ -6,7 +6,7 @@ services: #define the containers to be run
       dockerfile: Dockerfile
 
     ports:
-      - "3008:3000"
+      - "49160:3000"
     environment:
       - DB_TYPE=postgres
       - PG_HOST=db
@@ -38,7 +38,7 @@ services: #define the containers to be run
       dockerfile: Dockerfile
 
     ports:
-      - "3009:3000"
+      - "49161:3000"
     environment:
       - DB_TYPE=postgres
       - PG_HOST=db
@@ -68,7 +68,7 @@ services: #define the containers to be run
       dockerfile: Dockerfile
 
     ports:
-      - "3010:3000"
+      - "49162:3000"
     environment:
       - DB_TYPE=postgres
       - PG_HOST=db
@@ -100,7 +100,7 @@ services: #define the containers to be run
       dockerfile: Dockerfile
 
     ports:
-      - "3011:3000"
+      - "49163:3000"
     environment:
       - DB_TYPE=postgres
       - PG_HOST=db
@@ -134,7 +134,7 @@ services: #define the containers to be run
       dockerfile: Dockerfile
 
     ports:
-      - "3012:3000"
+      - "49164:3000"
 
     develop:
       watch:
@@ -156,7 +156,7 @@ services: #define the containers to be run
     command: ["npm", "run", "migration:run"]
 
     ports:
-      - "3013:3000"
+      - "49165:3000"
     environment:
       - DB_TYPE=postgres
       - PG_HOST=db
