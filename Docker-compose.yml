@@ -1,185 +1,177 @@
 services: #define the containers to be run
-  product-srv:
-    container_name: product-service
-    build:
-      context: ./product-catalogue-service
-      dockerfile: Dockerfile
+  # product-srv:
+  #   container_name: product-service
+  #   build:
+  #     context: ./product-catalogue-service
+  #     dockerfile: Dockerfile
 
-    ports:
-      - "3008:3000"
-    environment:
-      - DB_TYPE=postgres
-      - PG_HOST=db
-      - PG_PORT=5432
-      - PG_USER=postgres
-      - PG_PASSWORD=postgres
-      - PG_DB=postgres
-    depends_on:
-      db:
-        condition: service_healthy
-      user-srv:
-        condition: service_started
+  #   ports:
+  #     - "3008:3000"
+  #   environment:
+  #     - DB_TYPE=postgres
+  #     - PG_HOST=db
+  #     - PG_PORT=5432
+  #     - PG_USER=postgres
+  #     - PG_PASSWORD=postgres
+  #     - PG_DB=postgres
+  #   depends_on:
+  #     - db
+  #     - user-srv
 
-    develop:
-      watch:
-        - path: ./product-catalugue-service/package.json
-          action: rebuild
-        - path: ./product-catalogue-service/package-lock.json
-          action: rebuild
+  #   develop:
+  #     watch:
+  #       - path: ./product-catalugue-service/package.json
+  #         action: rebuild
+  #       - path: ./product-catalogue-service/package-lock.json
+  #         action: rebuild
 
-        - path: ./product-catalogue-service
-          target: /app
-          action: sync
+  #       - path: ./product-catalogue-service
+  #         target: /app
+  #         action: sync
 
-  user-srv:
-    container_name: user-service
-    build:
-      context: ./user-management-service
-      dockerfile: Dockerfile
+  # user-srv:
+  #   container_name: user-service
+  #   build:
+  #     context: ./user-management-service
+  #     dockerfile: Dockerfile
 
-    ports:
-      - "3009:3000"
-    environment:
-      - DB_TYPE=postgres
-      - PG_HOST=db
-      - PG_PORT=5432
-      - PG_USER=postgres
-      - PG_PASSWORD=postgres
-      - PG_DB=postgres
-    depends_on:
-      db:
-        condition: service_healthy
+  #   ports:
+  #     - "3009:3000"
+  #   environment:
+  #     - DB_TYPE=postgres
+  #     - PG_HOST=db
+  #     - PG_PORT=5432
+  #     - PG_USER=postgres
+  #     - PG_PASSWORD=postgres
+  #     - PG_DB=postgres
+  #   depends_on:
+  #     - db
 
-    develop:
-      watch:
-        - path: ./user-management-service/package.json
-          action: rebuild
-        - path: ./user-management-service/package-lock.json
-          action: rebuild
+  #   develop:
+  #     watch:
+  #       - path: ./user-management-service/package.json
+  #         action: rebuild
+  #       - path: ./user-management-service/package-lock.json
+  #         action: rebuild
 
-        - path: ./user-management-service
-          target: /app
-          action: sync
+  #       - path: ./user-management-service
+  #         target: /app
+  #         action: sync
 
-  inventory-srv:
-    container_name: inventory-service
-    build:
-      context: ./inventory-service
-      dockerfile: Dockerfile
+  # inventory-srv:
+  #   container_name: inventory-service
+  #   build:
+  #     context: ./inventory-service
+  #     dockerfile: Dockerfile
 
-    ports:
-      - "3010:3010"
-    environment:
-      - DB_TYPE=postgres
-      - PG_HOST=db
-      - PG_PORT=5432
-      - PG_USER=postgres
-      - PG_PASSWORD=postgres
-      - PG_DB=postgres
-    depends_on:
-      db:
-        condition: service_healthy
-      user-srv:
-        condition: service_started
+  #   ports:
+  #     - "3010:3010"
+  #   environment:
+  #     - DB_TYPE=postgres
+  #     - PG_HOST=db
+  #     - PG_PORT=5432
+  #     - PG_USER=postgres
+  #     - PG_PASSWORD=postgres
+  #     - PG_DB=postgres
+  #   depends_on:
+  #     - db
+  #     - user-srv
+  #     - product-srv
 
-    develop:
-      watch:
-        - path: ./sales-and-payment-service/package.json
-          action: rebuild
-        - path: ./sales-and-payment-service/package-lock.json
-          action: rebuild
+  #   develop:
+  #     watch:
+  #       - path: ./sales-and-payment-service/package.json
+  #         action: rebuild
+  #       - path: ./sales-and-payment-service/package-lock.json
+  #         action: rebuild
 
-        - path: ./sales-and-payment-service
-          target: /app
-          action: sync
+  #       - path: ./sales-and-payment-service
+  #         target: /app
+  #         action: sync
 
-  sales-and-payment-srv:
-    container_name: sales-and-payment-service
-    build:
-      context: ./sales-and-payment-service
-      dockerfile: Dockerfile
+  # sales-and-payment-srv:
+  #   container_name: sales-and-payment-service
+  #   build:
+  #     context: ./sales-and-payment-service
+  #     dockerfile: Dockerfile
 
-    ports:
-      - "3011:3011"
-    environment:
-      - DB_TYPE=postgres
-      - PG_HOST=db
-      - PG_PORT=5432
-      - PG_USER=postgres
-      - PG_PASSWORD=postgres
-      - PG_DB=postgres
-    depends_on:
-      db:
-        condition: service_healthy
-      user-srv:
-        condition: service_started
-      inventory-srv:
-        condition: service_started
+  #   ports:
+  #     - "3011:3000"
+  #   environment:
+  #     - DB_TYPE=postgres
+  #     - PG_HOST=db
+  #     - PG_PORT=5432
+  #     - PG_USER=postgres
+  #     - PG_PASSWORD=postgres
+  #     - PG_DB=postgres
+  #   depends_on:
+  #     - db
+  #     - user-srv
+  #     - product-srv
+  #     - inventory-srv
 
-    develop:
-      watch:
-        - path: ./inventory-service/package.json
-          action: rebuild
-        - path: ./inventory-service/package-lock.json
-          action: rebuild
+  #   develop:
+  #     watch:
+  #       - path: ./inventory-service/package.json
+  #         action: rebuild
+  #       - path: ./inventory-service/package-lock.json
+  #         action: rebuild
 
-        - path: ./inventory-service
-          target: /app
-          action: sync
+  #       - path: ./inventory-service
+  #         target: /app
+  #         action: sync
 
-  email-srv:
-    container_name: email-service
-    build:
-      context: ./email-service
-      dockerfile: Dockerfile
+  # email-srv:
+  #   container_name: email-service
+  #   build:
+  #     context: ./email-service
+  #     dockerfile: Dockerfile
 
-    ports:
-      - "3012:3000"
+  #   ports:
+  #     - "3012:3000"
 
-    develop:
-      watch:
-        - path: ./email-service/package.json
-          action: rebuild
-        - path: ./email-service/package-lock.json
-          action: rebuild
+  #   develop:
+  #     watch:
+  #       - path: ./email-service/package.json
+  #         action: rebuild
+  #       - path: ./email-service/package-lock.json
+  #         action: rebuild
 
-        - path: ./email-service
-          target: /app
-          action: sync
+  #       - path: ./email-service
+  #         target: /app
+  #         action: sync
 
-  migration-srv:
-    container_name: migration-service
-    build:
-      context: ./migration-service
-      dockerfile: Dockerfile
+  # migration-srv:
+  #   container_name: migration-service
+  #   build:
+  #     context: ./migration-service
+  #     dockerfile: Dockerfile
 
-    command: ["npm", "run", "migration:run"]
+  #   command: ["npm", "run", "migration:run"]
 
-    ports:
-      - "3013:3000"
-    environment:
-      - DB_TYPE=postgres
-      - PG_HOST=db
-      - PG_PORT=5432
-      - PG_USER=postgres
-      - PG_PASSWORD=postgres
-      - PG_DB=postgres
-    depends_on:
-      user-srv:
-        condition: service_started
-      db:
-        condition: service_healthy
+  #   ports:
+  #     - "3013:3000"
+  #   environment:
+  #     - DB_TYPE=postgres
+  #     - PG_HOST=db
+  #     - PG_PORT=5432
+  #     - PG_USER=postgres
+  #     - PG_PASSWORD=postgres
+  #     - PG_DB=postgres
+  #   depends_on:
+  #     - db
+  #     - user-srv
 
-    develop:
-      watch:
-        - path: ./migration-service/package.json
-          action: rebuild
-        - path: ./migration-service/package-lock.json
-          action: rebuild
+  #   develop:
+  #     watch:
+  #       - path: ./migration-service/package.json
+  #         action: rebuild
+  #       - path: ./migration-service/package-lock.json
+  #         action: rebuild
 
-        - path: ./migration-service
-          target: /app
-          action: sync
+  #       - path: ./migration-service
+  #         target: /app
+  #         action: sync
 
   db:
     container_name: db

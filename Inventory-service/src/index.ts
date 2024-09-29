@@ -28,7 +28,7 @@ const start = async () => {
   const port = 3010;
   //startig server
   app.listen(port, () => {
-    console.log(`email srv listening http://inventory-srv:${port}`),
+    console.log(`inventory srv listening http://inventory-srv:${port}`),
       console.log(
         `API_Docs on- http://localhost:${port}/api-docs/inventory-service/`
       );

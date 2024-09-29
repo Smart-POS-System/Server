@@ -3,6 +3,6 @@ import { RegionController } from "../controllers/regionController";
 
 const router = express.Router();
 
-router.get("/regions", RegionController.getAllRegions);
+router.post("/addRegion", RegionController.addRegion);
 
-export { router as getRegions };
+export { router as addRegion };
