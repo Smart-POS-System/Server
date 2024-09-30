@@ -36,6 +36,11 @@ services: #define the containers to be run
     build:
       context: ./user-management-service
       dockerfile: Dockerfile
+  user-srv:
+    container_name: user-service
+    build:
+      context: ./user-management-service
+      dockerfile: Dockerfile
 
     ports:
       - "3009:3000"
@@ -56,7 +61,16 @@ services: #define the containers to be run
           action: rebuild
         - path: ./user-management-service/package-lock.json
           action: rebuild
+    develop:
+      watch:
+        - path: ./user-management-service/package.json
+          action: rebuild
+        - path: ./user-management-service/package-lock.json
+          action: rebuild
 
+        - path: ./user-management-service
+          target: /app
+          action: sync
         - path: ./user-management-service
           target: /app
           action: sync
