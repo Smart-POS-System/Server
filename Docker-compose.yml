@@ -118,12 +118,46 @@ services: #define the containers to be run
 
     develop:
       watch:
-        - path: ./inventory-service/package.json
+        - path: ./sales-and-payment-service/package.json
           action: rebuild
-        - path: ./inventory-service/package-lock.json
+        - path: ./sales-and-payment-service/package-lock.json
           action: rebuild
 
-        - path: ./inventory-service
+        - path: ./sales-and-payment-service
+          target: /app
+          action: sync
+
+  analytics-srv:
+    container_name: analytics-service
+    build:
+      context: ./analytics-service
+      dockerfile: Dockerfile
+
+    ports:
+      - "49164:3000"
+    environment:
+      - DB_TYPE=postgres
+      - PG_HOST=db
+      - PG_PORT=5432
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres
+      - PG_DB=postgres
+    depends_on:
+      db:
+        condition: service_healthy
+      user-srv:
+        condition: service_started
+      inventory-srv:
+        condition: service_started
+
+    develop:
+      watch:
+        - path: ./analytics-service/package.json
+          action: rebuild
+        - path: ./analytics-service/package-lock.json
+          action: rebuild
+
+        - path: ./analytics-service
           target: /app
           action: sync
 
@@ -134,7 +168,7 @@ services: #define the containers to be run
       dockerfile: Dockerfile
 
     ports:
-      - "49164:3000"
+      - "49165:3000"
 
     develop:
       watch:
@@ -156,7 +190,7 @@ services: #define the containers to be run
     command: ["npm", "run", "migration:run"]
 
     ports:
-      - "49165:3000"
+      - "49166:3000"
     environment:
       - DB_TYPE=postgres
       - PG_HOST=db

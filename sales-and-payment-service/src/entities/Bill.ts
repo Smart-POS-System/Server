@@ -51,7 +51,7 @@ export class Bill {
   store: Location;
 
   @ManyToOne(() => Customer, (customer) => customer.bills)
-  @JoinColumn({ name: "customer_id" })
+  @JoinColumn({ name: "mobile" })
   customer: Customer | null;
 
   @Column("jsonb")
