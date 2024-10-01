@@ -1,6 +1,14 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { env } from "process";
+import { Bill } from "./entity/Bill";
+import { Customer } from "./entity/Customer";
+import { Employee } from "./entity/Employee";
+import { Item } from "./entity/Item";
+import { Location } from "./entity/Location";
+import { Product } from "./entity/Product";
+import { Region } from "./entity/Region";
+import { Stock } from "./entity/Stock";
 
 const db_host = env.PG_HOST;
 const db_port = parseInt(env.PG_PORT);
@@ -17,7 +25,7 @@ export const AppDataSource = new DataSource({
   database: db_name,
   synchronize: false,
   logging: true,
-  entities: [],
+  entities: [Bill, Customer, Employee, Item, Location, Product, Region, Stock],
   migrations: [],
   subscribers: [],
 });

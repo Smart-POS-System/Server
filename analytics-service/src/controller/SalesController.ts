@@ -11,7 +11,8 @@ export class SalesController {
     response: Response,
     next: NextFunction
   ) {
-    const { startDate, endDate } = request.body;
+    const startDate = new Date(request.query.startDate);
+    const endDate = new Date(request.query.endDate);
 
     const bills = await this.billRepository.find({
       where: {
