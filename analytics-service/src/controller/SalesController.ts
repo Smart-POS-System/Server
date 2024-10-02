@@ -56,45 +56,28 @@ export class SalesController {
     response: Response,
     next: NextFunction
   ) {
-    const startDate = new Date(request.query.startDate);
-    const endDate = new Date(request.query.endDate);
+    const startDate = request.query.startDate as string;
+    const endDate = request.query.endDate as string;
 
-    const bills = await this.billRepository.find({
-      where: {
-        timestamp: Between(new Date(startDate), new Date(endDate)),
-      },
-      order: {
-        timestamp: "ASC",
-      },
-    });
+    // Raw SQL query using TypeORM's query method
+    const query = `
+      SELECT 
+        item->>'product_name' AS product_name, 
+        SUM((item->>'quantity')::int) AS total_quantity
+      FROM bill,
+           jsonb_array_elements(items) AS item
+      WHERE timestamp BETWEEN $1 AND $2
+      GROUP BY item->>'product_name'
+      ORDER BY total_quantity DESC
+      LIMIT 4;
+    `;
 
-    const mostOccuringMap = new Map<string, number>();
+    // Execute the query with parameters (startDate and endDate)
+    const topSellingProducts = await this.billRepository.query(query, [
+      startDate,
+      endDate,
+    ]);
 
-    for (const bill of bills) {
-      const items = bill.items;
-
-      for (const item of items) {
-        if (mostOccuringMap.has(item.product_name)) {
-          mostOccuringMap.set(
-            item.product_name,
-            mostOccuringMap.get(item.product_name)! + item.quantity
-          );
-        } else {
-          mostOccuringMap.set(item.product_name, item.quantity);
-        }
-      }
-    }
-
-    const top4Products = Array.from(mostOccuringMap.entries())
-      .sort((a, b) => b[1] - a[1]) // Sort in descending order based on quantity
-      .slice(0, 4); // Take the top 4 entries
-
-    // Format the result as needed
-    const topSellingData = top4Products.map(([product_name, quantity]) => ({
-      product_name,
-      quantity,
-    }));
-
-    return topSellingData;
+    return topSellingProducts;
   }
 }

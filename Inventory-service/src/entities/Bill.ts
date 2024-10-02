@@ -2,6 +2,7 @@ import "reflect-metadata";
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -26,6 +27,7 @@ export class Bill {
   discount: number;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+  @Index()
   timestamp: Date;
 
   @Column({
