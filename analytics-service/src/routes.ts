@@ -1,4 +1,5 @@
 import { SalesController } from "./controller/SalesController";
+import { TransactionController } from "./controller/TransactionController";
 
 export const Routes = [
   {
@@ -14,5 +15,12 @@ export const Routes = [
     controller: SalesController,
     middleware: [],
     action: "getTopSellingProducts",
+  },
+  {
+    method: "get",
+    route: "/sales-transactions",
+    controller: TransactionController,
+    middleware: [],
+    action: "getBillData",
   },
 ];

@@ -1,4 +1,3 @@
-import { Between } from "typeorm";
 import { AppDataSource } from "../data-source";
 import { NextFunction, Request, Response } from "express";
 import { Bill } from "../entity/Bill";
@@ -11,44 +10,34 @@ export class SalesController {
     response: Response,
     next: NextFunction
   ) {
-    const startDate = new Date(request.query.startDate);
-    const endDate = new Date(request.query.endDate);
+    const startDate = request.query.startDate as string;
+    const endDate = request.query.endDate as string;
 
-    const bills = await this.billRepository.find({
-      where: {
-        timestamp: Between(new Date(startDate), new Date(endDate)),
-      },
-      order: {
-        timestamp: "ASC",
-      },
-    });
+    const query = `
+      SELECT 
+        to_char(timestamp::date, 'YYYY-MM-DD') AS date, 
+        SUM(bill_total) AS amount
+      FROM (
+        SELECT 
+          timestamp,
+          SUM((item->>'price')::numeric * (item->>'quantity')::numeric) AS bill_total
+        FROM 
+          bill, 
+          jsonb_array_elements(items) AS item
+        WHERE 
+          timestamp BETWEEN $1 AND $2
+        GROUP BY timestamp
+      ) AS daily_bills
+      GROUP BY date
+      ORDER BY date ASC;
+    `;
 
-    const salesMap = new Map<string, number>();
+    const dailySalesData = await this.billRepository.query(query, [
+      startDate,
+      endDate,
+    ]);
 
-    // Process each bill
-    for (const bill of bills) {
-      const items = bill.items;
-      let billTotal = 0;
-
-      for (const item of items) {
-        billTotal += item.quantity * item.price;
-      }
-
-      const date = bill.timestamp.toISOString().split("T")[0];
-
-      if (salesMap.has(date)) {
-        salesMap.set(date, salesMap.get(date)! + billTotal);
-      } else {
-        salesMap.set(date, billTotal);
-      }
-    }
-
-    const salesData = Array.from(salesMap.entries()).map(([date, amount]) => ({
-      date,
-      amount,
-    }));
-
-    return salesData;
+    return dailySalesData;
   }
 
   async getTopSellingProducts(
