@@ -20,7 +20,7 @@ describe("SalesController", () => {
 
   beforeEach(() => {
     req = {
-      body: {
+      query: {
         startDate: "2023-10-01",
         endDate: "2023-10-31",
       },
@@ -69,6 +69,9 @@ describe("SalesController", () => {
       where: {
         timestamp: Between(new Date("2023-10-01"), new Date("2023-10-31")),
       },
+      order: {
+        timestamp: "ASC", // Expecting this order clause in the query
+      },
     });
 
     expect(result).toEqual([
@@ -89,6 +92,9 @@ describe("SalesController", () => {
     expect(AppDataSource.getRepository(Bill).find).toHaveBeenCalledWith({
       where: {
         timestamp: Between(new Date("2023-10-01"), new Date("2023-10-31")),
+      },
+      order: {
+        timestamp: "ASC", // Expecting this order clause in the query
       },
     });
 
