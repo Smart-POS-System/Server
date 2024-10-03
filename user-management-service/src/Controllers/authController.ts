@@ -14,6 +14,7 @@ import {
   resetToDefault,
   saveNewPassword,
   sendEmailToUser,
+  updateLastLogin,
   verifyToken,
 } from "../Services/authServices";
 
@@ -69,6 +70,8 @@ export const login = catchAsync(
     }
 
     const token = createSendToken(user, 200, res);
+
+    await updateLastLogin(user);
 
     res.status(200).json({
       status: "success",
