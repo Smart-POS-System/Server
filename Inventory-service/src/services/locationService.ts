@@ -63,4 +63,28 @@ export class LocationService {
       throw new Error("Error fetching location.");
     }
   }
+  static async getStores() {
+    const locationRepository = AppDataSource.getRepository(Location);
+    try {
+      const locations = await locationRepository.find({
+        where: { type: Types.STORE },
+      });
+      return locations;
+    } catch (error) {
+      console.log("Error fetching stores:", error);
+      throw new Error("Error fetching stores.");
+    }
+  }
+  static async getInventories() {
+    const locationRepository = AppDataSource.getRepository(Location);
+    try {
+      const locations = await locationRepository.find({
+        where: { type: Types.INVENTORY },
+      });
+      return locations;
+    } catch (error) {
+      console.log("Error fetching inventories:", error);
+      throw new Error("Error fetching inventories.");
+    }
+  }
 }

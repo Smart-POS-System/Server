@@ -9,6 +9,7 @@ import { Product } from "./entities/Product";
 import { Region } from "./entities/Region";
 import { Stock } from "./entities/Stock";
 import dotenv from "dotenv";
+import { Stock_Log } from "./entities/Stock_Log";
 
 /*const db_host = env.PG_HOST;
 const db_port = parseInt(env.PG_PORT);
@@ -47,6 +48,16 @@ export const AppDataSource = new DataSource({
   database: process.env.PG_DB,
   synchronize: false,
   logging: true,
-  entities: [Customer, Employee, Bill, Item, Location, Product, Region, Stock],
+  entities: [
+    Customer,
+    Employee,
+    Bill,
+    Item,
+    Location,
+    Product,
+    Region,
+    Stock,
+    Stock_Log,
+  ],
   // entities: [Customer, Employee],
 });

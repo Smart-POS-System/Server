@@ -3,6 +3,6 @@ import { StockController } from "../controllers/stockController";
 
 const router = express.Router();
 
-router.get("/expires", StockController.getExpires);
+router.post("/expires", StockController.getExpires);
 
 export { router as getExpires };

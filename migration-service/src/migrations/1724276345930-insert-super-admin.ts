@@ -6,7 +6,7 @@ export class InsertSuperAdmin1724276345930 implements MigrationInterface {
                 VALUES(
                     'admin1234', 
                     'admin@pos.com',
-                    'admin1234',
+                    '$2b$12$qLQjuD/ReU4DU2E5Q.BnW.kCjQIA5qS7I8SeprgAm8Fv/gsORnZm.',
                     'General Manager', 
                     TRUE, 
                     TRUE

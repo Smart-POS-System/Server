@@ -53,4 +53,23 @@ export class LocationController {
       return res.status(500).json({ message: "Error fetching location." });
     }
   }
+
+  static async getStores(req: Request, res: Response) {
+    try {
+      const locations = await LocationService.getStores();
+      return res.status(200).json(locations);
+    } catch (error) {
+      console.error("Error in getStores:", error);
+      return res.status(500).json({ message: "Error fetching stores." });
+    }
+  }
+  static async getInventories(req: Request, res: Response) {
+    try {
+      const locations = await LocationService.getInventories();
+      return res.status(200).json(locations);
+    } catch (error) {
+      console.error("Error in getInventories:", error);
+      return res.status(500).json({ message: "Error fetching inventories." });
+    }
+  }
 }
