@@ -23,4 +23,11 @@ export const Routes = [
     middleware: [],
     action: "getBillData",
   },
+  {
+    method: "get",
+    route: "/total-revenue",
+    controller: TransactionController,
+    middleware: [],
+    action: "getTotalRevenue",
+  },
 ];

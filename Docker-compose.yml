@@ -84,12 +84,12 @@ services: #define the containers to be run
 
     develop:
       watch:
-        - path: ./sales-and-payment-service/package.json
+        - path: ./inventory-service/package.json
           action: rebuild
-        - path: ./sales-and-payment-service/package-lock.json
+        - path: ./inventory-service/package-lock.json
           action: rebuild
 
-        - path: ./sales-and-payment-service
+        - path: ./inventory-service
           target: /app
           action: sync
 
@@ -127,10 +127,10 @@ services: #define the containers to be run
           target: /app
           action: sync
 
-  analytics-srv:
-    container_name: analytics-service
+  analytics-and-transactions-srv:
+    container_name: analytics-and-transactions-service
     build:
-      context: ./analytics-service
+      context: ./analytics-and-transactions-service
       dockerfile: Dockerfile
 
     ports:
@@ -152,12 +152,12 @@ services: #define the containers to be run
 
     develop:
       watch:
-        - path: ./analytics-service/package.json
+        - path: ./analytics-and-transactions-service/package.json
           action: rebuild
-        - path: ./analytics-service/package-lock.json
+        - path: ./analytics-and-transactions-service/package-lock.json
           action: rebuild
 
-        - path: ./analytics-service
+        - path: ./analytics-and-transactions-service
           target: /app
           action: sync
 
@@ -219,7 +219,7 @@ services: #define the containers to be run
     container_name: db
     image: postgres:12
     ports:
-      - "5430:5432" # works on other devices
+      - "49167:5432" # works on other devices
       # - "5400:5432" # works on Yapa's device
     environment:
       POSTGRES_USER: postgres

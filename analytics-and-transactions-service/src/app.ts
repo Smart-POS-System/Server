@@ -40,8 +40,5 @@ Routes.forEach((route) => {
     }
   );
 });
-app.get("/analytics", (req: Request, res: Response) => {
-  res.send("Welcome to analytics server...");
-});
 
 export { app };
