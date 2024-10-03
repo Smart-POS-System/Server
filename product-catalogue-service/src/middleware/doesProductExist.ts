@@ -13,7 +13,6 @@ const doesProductExist = async (
   if (!product_id) {
     product_id = req.params.product_id;
   }
-  console.log(`product_id is ${product_id} from doesProductExist`);
 
   // Fetch the Product entity using the product_id
   const product = await AppDataSource.getRepository(Product).findOne({
