@@ -21,7 +21,7 @@ const start = async () => {
     console.error(err);
   }
   app.use("/api-docs/sales-service", swaggerUi.serve, swaggerUi.setup(specs));
-  const port = 3011;
+  const port = 3000;
   //startig server
   app.listen(port, () => {
     console.log(`email srv listening http://sales-srv:${port}`),

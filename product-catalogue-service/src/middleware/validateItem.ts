@@ -1,17 +1,10 @@
 import { Request } from "express";
 import { Response } from "express";
 import { NextFunction } from "express";
+import { isItemValid } from "../helpers/isItemValid";
 
 const validateItem = (req: Request, res: Response, next: NextFunction) => {
-  const { product_id, buying_price, selling_price, mfd, exp } = req.body;
-
-  if (
-    product_id != null &&
-    buying_price != null &&
-    selling_price != null &&
-    mfd != null &&
-    exp != null
-  ) {
+  if (isItemValid(req.body)) {
     next();
   } else {
     return res

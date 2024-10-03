@@ -18,6 +18,7 @@ import { Bill } from "./entities/Bill";
 //import { insertRoles } from "./tests/insertRoles";
 //import { insertEmployees } from "./tests/insertEmployees";
 import { specs, swaggerUi } from "./swagger";
+import { Stock_Log } from "./entities/Stock_Log";
 
 process.on("uncaughtException", (err: Error) => {
   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
@@ -50,13 +51,23 @@ export const AppDataSource = new DataSource({
   database: process.env.PG_DB,
   synchronize: true,
   logging: true,
-  entities: [Customer, Employee, Location, Region, Product, Stock, Item, Bill],
+  entities: [
+    Customer,
+    Employee,
+    Location,
+    Region,
+    Product,
+    Stock,
+    Item,
+    Bill,
+    Stock_Log,
+  ],
 });
 
 AppDataSource.initialize()
   .then(() => {
     console.log("Data Source has been initialized!");
-    console.log("user service is listening on http://localhost:3009");
+    console.log("user service is listening on http://localhost:49161");
   })
   .catch((err) => {
     console.error("Error during Data Source initialization", err);

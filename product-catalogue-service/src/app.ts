@@ -12,8 +12,8 @@ const upload = multer();
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // Only allow requests from this origin
-    methods: ["GET", "POST"], // Allow specific HTTP methods
+    origin: true, // Only allow requests from this origin
+    methods: ["GET", "POST", "DELETE"], // Allow specific HTTP methods
     credentials: true, // Allow cookies to be sent with requests
   })
 );
