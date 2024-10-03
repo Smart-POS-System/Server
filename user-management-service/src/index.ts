@@ -67,7 +67,7 @@ export const AppDataSource = new DataSource({
 AppDataSource.initialize()
   .then(() => {
     console.log("Data Source has been initialized!");
-    console.log("user service is listening on http://localhost:3009");
+    console.log("user service is listening on http://localhost:49161");
   })
   .catch((err) => {
     console.error("Error during Data Source initialization", err);

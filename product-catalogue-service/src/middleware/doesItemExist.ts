@@ -10,7 +10,6 @@ const doesItemExist = async (
   next: NextFunction
 ) => {
   const item_id = req.params.item_id;
-  console.log(`Checking if item with item_id ${item_id} exists...`);
 
   const item = await AppDataSource.getRepository(Item).findOne({
     where: { item_id },

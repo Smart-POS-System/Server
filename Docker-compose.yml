@@ -6,7 +6,7 @@ services: #define the containers to be run
       dockerfile: Dockerfile
 
     ports:
-      - "3008:3000"
+      - "49160:3000"
     environment:
       - DB_TYPE=postgres
       - PG_HOST=db
@@ -36,7 +36,7 @@ services: #define the containers to be run
       dockerfile: Dockerfile
 
     ports:
-      - "3009:3000"
+      - "49161:3000"
     environment:
       - DB_TYPE=postgres
       - PG_HOST=db
@@ -68,7 +68,7 @@ services: #define the containers to be run
       dockerfile: Dockerfile
 
     ports:
-      - "3010:3010"
+      - "49162:3000"
     environment:
       - DB_TYPE=postgres
       - PG_HOST=db
@@ -83,12 +83,12 @@ services: #define the containers to be run
 
     develop:
       watch:
-        - path: ./sales-and-payment-service/package.json
+        - path: ./inventory-service/package.json
           action: rebuild
-        - path: ./sales-and-payment-service/package-lock.json
+        - path: ./inventory-service/package-lock.json
           action: rebuild
 
-        - path: ./sales-and-payment-service
+        - path: ./inventory-service
           target: /app
           action: sync
 
@@ -99,7 +99,41 @@ services: #define the containers to be run
       dockerfile: Dockerfile
 
     ports:
-      - "3011:3000"
+      - "49163:3000"
+    environment:
+      - DB_TYPE=postgres
+      - PG_HOST=db
+      - PG_PORT=5432
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres
+      - PG_DB=postgres
+    depends_on:
+      db:
+        condition: service_healthy
+      user-srv:
+        condition: service_started
+      inventory-srv:
+        condition: service_started
+
+    develop:
+      watch:
+        - path: ./sales-and-payment-service/package.json
+          action: rebuild
+        - path: ./sales-and-payment-service/package-lock.json
+          action: rebuild
+
+        - path: ./sales-and-payment-service
+          target: /app
+          action: sync
+
+  analytics-and-transactions-srv:
+    container_name: analytics-and-transactions-service
+    build:
+      context: ./analytics-and-transactions-service
+      dockerfile: Dockerfile
+
+    ports:
+      - "49164:3000"
     environment:
       - DB_TYPE=postgres
       - PG_HOST=db
@@ -115,12 +149,12 @@ services: #define the containers to be run
 
     develop:
       watch:
-        - path: ./inventory-service/package.json
+        - path: ./analytics-and-transactions-service/package.json
           action: rebuild
-        - path: ./inventory-service/package-lock.json
+        - path: ./analytics-and-transactions-service/package-lock.json
           action: rebuild
 
-        - path: ./inventory-service
+        - path: ./analytics-and-transactions-service
           target: /app
           action: sync
 
@@ -131,7 +165,7 @@ services: #define the containers to be run
       dockerfile: Dockerfile
 
     ports:
-      - "3012:3000"
+      - "49165:3000"
 
     develop:
       watch:
@@ -153,7 +187,7 @@ services: #define the containers to be run
     command: ["npm", "run", "migration:run"]
 
     ports:
-      - "3013:3000"
+      - "49166:3000"
     environment:
       - DB_TYPE=postgres
       - PG_HOST=db
@@ -180,8 +214,8 @@ services: #define the containers to be run
     container_name: db
     image: postgres:12
     ports:
-      # - "5430:5432" # works on other devices
-      - "5400:5432" # works on Yapa's device
+      - "49167:5432" # works on other devices
+      # - "5400:5432" # works on Yapa's device
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
