@@ -18,11 +18,57 @@ import { getImageLink } from "../Utils/getImageLink";
 import { AppDataSource } from "..";
 import { Employee } from "../entities/Employee";
 import bcrypt from "bcryptjs";
+import { Roles } from "../enums/roles.enum";
+import { isEligible, isUserExist } from "../Services/authServices";
+import { sendMailToUser } from "../Middleware/employeeMiddlewares";
 
 export const createUserByAdmin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      if (!req.user || !req.body || !req.user.role || !req.body.role) {
+        return next(new AppError("Data is missing", 400));
+      }
+
+      if (!isEligible(req.user.role, req.body.role)) {
+        return next(
+          new AppError("You do not have permission to perform this action", 403)
+        );
+      }
+
       const { name, email, role, phone } = req.body;
+
+      if (!name) {
+        return next(
+          new AppError("User's name is required and must be a string", 400)
+        );
+      }
+
+      if (!role || !Object.values(Roles).includes(role)) {
+        return next(
+          new AppError(
+            "Role must be one of Regional Manager, Inventory Manager, Store Manager, Cashier",
+            400
+          )
+        );
+      }
+
+      if (
+        !email ||
+        !/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)
+      ) {
+        return next(new AppError("Email must be a valid email address", 400));
+      }
+
+      if (!phone || !/^\d{10}$/.test(phone)) {
+        return next(
+          new AppError("Phone number must be a string of 10 digits", 400)
+        );
+      }
+
+      const existingUser = await isUserExist(req.body.email);
+      if (existingUser) {
+        next(new AppError("User already exists", 404));
+      }
 
       let imageLink = null;
       if (req.file || req.body.image) {
@@ -40,6 +86,21 @@ export const createUserByAdmin = catchAsync(
         imageLink || null
       );
 
+      if (!user) {
+        return next(new AppError("Couldn't create user", 400));
+      }
+
+      const status = await sendMailToUser(user.email, user.role);
+
+      if (!status) {
+        return next(
+          new AppError(
+            "There was an error sending the email. Try again later!",
+            500
+          )
+        );
+      }
+
       res.status(201).json({
         status: "success",
         data: {
@@ -53,58 +114,16 @@ export const createUserByAdmin = catchAsync(
   }
 );
 
-export const updatePasswordByUser = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { currentPassword, password, passwordConfirm } = req.body;
-    if (!req.user || !req.user.email) {
-      return next(new AppError("Couldn't authenticate the user", 404));
-    }
-
-    if (!currentPassword || !password || !passwordConfirm) {
-      return next(
-        new AppError(
-          "Please provide current password, new password and confirm password",
-          400
-        )
-      );
-    }
-
-    if (password !== passwordConfirm) {
-      return next(new AppError("Passwords do not match", 400));
-    }
-
-    if (password.length < 8) {
-      return next(new AppError("Password must be at least 8 characters", 400));
-    }
-
-    const user = await getUserByEmailAndCurrentPassword(
-      req.user.email,
-      currentPassword
-    );
-
-    if (!user) {
-      return next(new AppError("User is not found", 404));
-    }
-
-    const updatedUser = await updateUserPassword(user, password);
-
-    res.status(201).json({
-      status: "success",
-      data: {
-        user: { ...updatedUser, password: undefined },
-        message: "Password updated successfully",
-      },
-    });
-  }
-);
-
 export const getUsers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const allowedRoles = getCurrentUserRoleInfo(req.user);
       const queryString = setFeatures(req.query);
 
-      const users = await getAllUsers(allowedRoles, queryString);
+      const { users, totalRecords } = await getAllUsers(
+        allowedRoles,
+        queryString
+      );
 
       if (!users || users.length === 0) {
         return next(new AppError("No users found", 404));
@@ -114,6 +133,7 @@ export const getUsers = catchAsync(
         status: "success",
         data: {
           users,
+          totalRecords,
         },
       });
     } catch (err: any) {
@@ -301,6 +321,51 @@ export const updateLoggedUser = catchAsync(
     } catch (err: any) {
       return next(new AppError(err.message, 400));
     }
+  }
+);
+
+export const updatePasswordByUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { currentPassword, password, passwordConfirm } = req.body;
+    if (!req.user || !req.user.email) {
+      return next(new AppError("Couldn't authenticate the user", 404));
+    }
+
+    if (!currentPassword || !password || !passwordConfirm) {
+      return next(
+        new AppError(
+          "Please provide current password, new password and confirm password",
+          400
+        )
+      );
+    }
+
+    if (password !== passwordConfirm) {
+      return next(new AppError("Passwords do not match", 400));
+    }
+
+    if (password.length < 8) {
+      return next(new AppError("Password must be at least 8 characters", 400));
+    }
+
+    const user = await getUserByEmailAndCurrentPassword(
+      req.user.email,
+      currentPassword
+    );
+
+    if (!user) {
+      return next(new AppError("Check your current password again", 404));
+    }
+
+    const updatedUser = await updateUserPassword(user, password);
+
+    res.status(201).json({
+      status: "success",
+      data: {
+        user: { ...updatedUser, password: undefined },
+        message: "Password updated successfully",
+      },
+    });
   }
 );
 

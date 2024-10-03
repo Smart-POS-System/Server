@@ -19,16 +19,9 @@ import {
   protect,
   resetPassword,
   restrictTo,
-  restrictToCreate,
 } from "../Controllers/authController";
 import { errorHandler } from "../Controllers/errorController";
-import {
-  isUserExists,
-  sendMailToUser,
-  validateCreation,
-  validateMe,
-  validateUser,
-} from "../Middleware/employeeMiddlewares";
+import { validateMe, validateUser } from "../Middleware/employeeMiddlewares";
 import { upload } from "../Utils/getImageLink";
 
 const router = express.Router();
@@ -154,19 +147,13 @@ router.post("/logout", logout);
  *       400:
  *         description: Invalid request
  */
+
+router.patch("/updatePassword", protect, updatePasswordByUser, errorHandler);
+
 router
   .route("/")
   .get(protect, getUsers, errorHandler)
-  .post(
-    protect,
-    upload,
-    validateUser,
-    isUserExists,
-    restrictToCreate,
-    sendMailToUser,
-    createUserByAdmin,
-    errorHandler
-  );
+  .post(protect, upload, createUserByAdmin, errorHandler);
 
 router
   .route("/:id")
@@ -191,14 +178,6 @@ router.patch(
   protect,
   restrictTo("General Manager"),
   activateUser,
-  errorHandler
-);
-
-router.post(
-  "/updatePassword",
-  protect,
-  validateCreation,
-  updatePasswordByUser,
   errorHandler
 );
 
