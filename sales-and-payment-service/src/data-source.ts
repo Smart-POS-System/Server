@@ -9,6 +9,7 @@ import { Region } from "./entities/Region";
 import { Product } from "./entities/Product";
 import { Stock } from "./entities/Stock";
 import { Item } from "./entities/Item";
+import { Stock_Log } from "./entities/Stock_Log";
 
 import dotenv from "dotenv";
 
@@ -35,7 +36,17 @@ export const AppDataSource = new DataSource({
   database: db_name,
   synchronize: false,
   logging: true,
-  entities: [Customer, Employee, Location, Region, Product, Stock, Item, Bill],
+  entities: [
+    Customer,
+    Employee,
+    Location,
+    Region,
+    Product,
+    Stock,
+    Item,
+    Bill,
+    Stock_Log,
+  ],
   migrations: [],
   subscribers: [],
 });

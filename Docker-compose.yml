@@ -15,10 +15,8 @@ services: #define the containers to be run
       - PG_PASSWORD=postgres
       - PG_DB=postgres
     depends_on:
-      db:
-        condition: service_healthy
-      user-srv:
-        condition: service_started
+      - db
+      - user-srv
 
     develop:
       watch:
@@ -47,8 +45,7 @@ services: #define the containers to be run
       - PG_PASSWORD=postgres
       - PG_DB=postgres
     depends_on:
-      db:
-        condition: service_healthy
+      - db
 
     develop:
       watch:
@@ -57,6 +54,9 @@ services: #define the containers to be run
         - path: ./user-management-service/package-lock.json
           action: rebuild
 
+        - path: ./user-management-service
+          target: /app
+          action: sync
         - path: ./user-management-service
           target: /app
           action: sync
@@ -77,10 +77,9 @@ services: #define the containers to be run
       - PG_PASSWORD=postgres
       - PG_DB=postgres
     depends_on:
-      db:
-        condition: service_healthy
-      user-srv:
-        condition: service_started
+      - db
+      - user-srv
+      - product-srv
 
     develop:
       watch:
@@ -143,12 +142,10 @@ services: #define the containers to be run
       - PG_PASSWORD=postgres
       - PG_DB=postgres
     depends_on:
-      db:
-        condition: service_healthy
-      user-srv:
-        condition: service_started
-      inventory-srv:
-        condition: service_started
+      - db
+      - user-srv
+      - product-srv
+      - inventory-srv
 
     develop:
       watch:
@@ -199,10 +196,8 @@ services: #define the containers to be run
       - PG_PASSWORD=postgres
       - PG_DB=postgres
     depends_on:
-      user-srv:
-        condition: service_started
-      db:
-        condition: service_healthy
+      - db
+      - user-srv
 
     develop:
       watch:
