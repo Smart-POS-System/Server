@@ -50,7 +50,7 @@ export const AppDataSource = new DataSource({
   migrations: [],
   subscribers: [],
 });
-//for local use
+// for local use
 // export const AppDataSource = new DataSource({
 //   type: "postgres",
 //   host: "localhost",
