@@ -189,3 +189,9 @@ export const sendEmailToUser = async (
     message,
   });
 };
+
+export const updateLastLogin = async (user: any) => {
+  const userRepository = AppDataSource.getRepository(Employee);
+  user.last_login_at = new Date(Date.now());
+  await userRepository.save(user);
+};

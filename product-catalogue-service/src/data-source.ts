@@ -9,6 +9,7 @@ import { Location } from "./entities/Location";
 import { Region } from "./entities/Region";
 import { Stock } from "./entities/Stock";
 import { Bill } from "./entities/Bill";
+import { Stock_Log } from "./entities/Stock_Log";
 
 const db_host = env.PG_HOST;
 const db_port = parseInt(env.PG_PORT);
@@ -25,7 +26,17 @@ export const AppDataSource = new DataSource({
   database: db_name,
   synchronize: false,
   logging: true,
-  entities: [Customer, Employee, Location, Region, Product, Stock, Item, Bill],
+  entities: [
+    Customer,
+    Employee,
+    Location,
+    Region,
+    Product,
+    Stock,
+    Item,
+    Bill,
+    Stock_Log,
+  ],
   migrations: [],
   subscribers: [],
 });
