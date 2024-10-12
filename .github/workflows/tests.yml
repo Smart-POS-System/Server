@@ -13,8 +13,8 @@ jobs:
 
     strategy:
       matrix:
-        service: ['sales-and-payment-service'] 
-        #, 'inventory-service', 'user-service']
+        service: ['sales-and-payment-service', 'product-catalogue-service', 'user-management-service']
+        #,'analytics-and-transactions-service']
 
     steps:
       - uses: actions/checkout@v2

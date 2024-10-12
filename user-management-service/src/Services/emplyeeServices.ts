@@ -94,13 +94,15 @@ export const getAllUsers = async (allowedRoles: string[], queryString: any) => {
     queryBuilder = queryBuilder.andWhere("employee.role = :role", { role });
   }
 
+  const totalRecords = await queryBuilder.getCount();
+
   const users = await queryBuilder
     .orderBy(`employee.${sortBy}`, sortOrder)
     .skip((page - 1) * limit)
     .take(limit)
     .getMany();
 
-  return users;
+  return { users, totalRecords };
 };
 //eemployee.location id
 // export const getOneUser = async (id: number, allowedRoles: string[]) => {
