@@ -16,6 +16,7 @@ import { removeStock } from "./routes/removeStock";
 import { sendStock } from "./routes/sendStock";
 import { getStores } from "./routes/getStores";
 import { getInventories } from "./routes/getInventories";
+import { getAllStocks } from "./routes/getAllStocks";
 
 const app = express();
 const corsOptions = {
@@ -40,6 +41,7 @@ app.use(getInventories);
 app.use(getLocationById);
 app.use(addStock);
 app.use(getStocks);
+app.use(getAllStocks);
 app.use(getExpires);
 app.use(removeStock);
 app.use(sendStock);

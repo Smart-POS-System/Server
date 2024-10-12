@@ -103,10 +103,35 @@ export const getAllUsers = async (allowedRoles: string[], queryString: any) => {
   return users;
 };
 //eemployee.location id
+// export const getOneUser = async (id: number, allowedRoles: string[]) => {
+//   const userRepository = AppDataSource.getRepository(Employee);
+//   const user = await userRepository
+//     .createQueryBuilder("employee")
+//     .where("employee.role IN (:...allowedRoles)", { allowedRoles })
+//     .where("employee.employee_id = :id", { id })
+//     .select([
+//       "employee.employee_id",
+//       "employee.name",
+//       "employee.email",
+//       "employee.role",
+//       "employee.is_active",
+//       "employee.image",
+//       "employee.mobile",
+//       "employee.account_created_at",
+//       "employee.last_login_at",
+//       "employee.location_id",
+//       "employee.temporary",
+//     ])
+//     .getOne();
+
+//   return user;
+// };
+
 export const getOneUser = async (id: number, allowedRoles: string[]) => {
   const userRepository = AppDataSource.getRepository(Employee);
   const user = await userRepository
     .createQueryBuilder("employee")
+    .leftJoinAndSelect("employee.location", "location")
     .where("employee.role IN (:...allowedRoles)", { allowedRoles })
     .where("employee.employee_id = :id", { id })
     .select([
@@ -119,7 +144,8 @@ export const getOneUser = async (id: number, allowedRoles: string[]) => {
       "employee.mobile",
       "employee.account_created_at",
       "employee.last_login_at",
-      "employee.location_id",
+      "location.location_id",
+      "location.name",
       "employee.temporary",
     ])
     .getOne();
