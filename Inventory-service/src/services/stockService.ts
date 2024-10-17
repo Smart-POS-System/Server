@@ -1,4 +1,4 @@
-import { In, MoreThan } from "typeorm";
+import { In, MoreThan, ILike } from "typeorm";
 import { AppDataSource } from "../data-source";
 import { Item } from "../entities/Item";
 import { Stock } from "../entities/Stock";
@@ -7,6 +7,8 @@ import { Stock_Log } from "../entities/Stock_Log";
 import { Inventory_Transactions } from "../enums/inventoryTransactions.enum";
 import { error } from "console";
 import { Employee } from "../entities/Employee";
+import { Product } from "../entities/Product";
+import { Roles } from "../enums/roles.enum";
 
 export class StockService {
   static getFlatArray(
@@ -33,7 +35,12 @@ export class StockService {
   }
 
   // get stocks given of all locations (Paginated)
-  static async getStocks(page_size: number, current_page: number) {
+  static async getStocks(
+    page_size: number,
+    current_page: number,
+    product_name: string,
+    barcode: string
+  ) {
     const stockRepository = AppDataSource.getRepository(Stock);
     const itemRepository = AppDataSource.getRepository(Item);
 
@@ -42,7 +49,11 @@ export class StockService {
 
     const [stocks, total] = await stockRepository.findAndCount({
       relations: ["item", "location"],
-      where: { quantity: MoreThan(0) },
+      where: {
+        quantity: MoreThan(0),
+        barcode: ILike(`%${barcode}%`),
+        item: { product: { product_name: ILike(`%${product_name}%`) } },
+      },
       skip: (currentPage - 1) * pageSize,
       take: pageSize,
     });
@@ -71,14 +82,18 @@ export class StockService {
   }
 
   // get stocks given of all locations (Paginated)
-  static async getAllStocks() {
+  static async getAllStocks(product_name: string, barcode: string) {
     const stockRepository = AppDataSource.getRepository(Stock);
     const itemRepository = AppDataSource.getRepository(Item);
 
     // const [stocks, total] = await stockRepository.findAndCount({
     const stocks = await stockRepository.find({
-      relations: ["item", "location"],
-      where: { quantity: MoreThan(0) },
+      relations: ["item", "location", "item.product"],
+      where: {
+        quantity: MoreThan(0),
+        barcode: ILike(`%${barcode}%`),
+        item: { product: { product_name: ILike(`%${product_name}%`) } },
+      },
     });
 
     const flatArray = await Promise.all(
@@ -108,7 +123,9 @@ export class StockService {
   static async getStocksByLocation(
     location_id: number,
     page_size: number,
-    current_page: number
+    current_page: number,
+    product_name: string,
+    barcode: string
   ) {
     const stockRepository = AppDataSource.getRepository(Stock);
     const itemRepository = AppDataSource.getRepository(Item);
@@ -116,13 +133,42 @@ export class StockService {
     const pageSize = page_size || 10;
     const currentPage = current_page || 1;
 
+    console.log(pageSize);
+
     const [stocks, total] = await stockRepository.findAndCount({
-      relations: ["item", "location"],
-      where: { location: { location_id: location_id }, quantity: MoreThan(0) },
+      relations: ["item", "location", "item.product"],
+      where: {
+        location: { location_id: location_id },
+        quantity: MoreThan(0),
+        barcode: ILike(`%${barcode}%`),
+        item: { product: { product_name: ILike(`%${product_name}%`) } },
+      },
       skip: (currentPage - 1) * pageSize,
       take: pageSize,
     });
-    console.log(stocks);
+    // const [stocks, total] = await stockRepository.findAndCount({
+    //   relations: ["item", "location"],
+    //   where: {
+    //     location: { location_id: location_id },
+    //     quantity: MoreThan(0),
+    //     item: { product: { product_name: Like(`%${product_name}%`) } },
+    //   },
+    //   skip: (currentPage - 1) * pageSize,
+    //   take: pageSize,
+    // });
+    // console.log(
+    //   JSON.stringify(
+    //     stocks,
+    //     (key, value) => {
+    //       // Optionally filter out properties you don't want to log
+    //       if (key === "product") {
+    //         return value; // Return the product object to include it
+    //       }
+    //       return value; // Include all other properties
+    //     },
+    //     2
+    //   )
+    // );
 
     const flatArray = await Promise.all(
       stocks.map(async (stock) => {
@@ -147,14 +193,23 @@ export class StockService {
     };
   }
   // get stocks given a location
-  static async getAllStocksByLocation(location_id: number) {
+  static async getAllStocksByLocation(
+    location_id: number,
+    product_name: string,
+    barcode: string
+  ) {
     const stockRepository = AppDataSource.getRepository(Stock);
     const itemRepository = AppDataSource.getRepository(Item);
 
     // const [stocks, total] = await stockRepository.findAndCount({
     const stocks = await stockRepository.find({
-      relations: ["item", "location"],
-      where: { location: { location_id: location_id }, quantity: MoreThan(0) },
+      relations: ["item", "location", "item.product"],
+      where: {
+        location: { location_id: location_id },
+        quantity: MoreThan(0),
+        barcode: ILike(`%${barcode}%`),
+        item: { product: { product_name: ILike(`%${product_name}%`) } },
+      },
     });
 
     const flatArray = await Promise.all(
@@ -184,7 +239,9 @@ export class StockService {
   static async getStocksByRegion(
     region_id: number,
     page_size: number,
-    current_page: number
+    current_page: number,
+    product_name: string,
+    barcode: string
   ) {
     const stockRepository = AppDataSource.getRepository(Stock);
     const locationRepository = AppDataSource.getRepository(Location);
@@ -201,10 +258,12 @@ export class StockService {
     const locationIds = locations.map((location) => location.location_id);
 
     const [stocks, total] = await stockRepository.findAndCount({
-      relations: ["item", "location"],
+      relations: ["item", "location", "item.product"],
       where: {
         location: { location_id: In(locationIds) },
         quantity: MoreThan(0),
+        barcode: ILike(`%${barcode}%`),
+        item: { product: { product_name: ILike(`%${product_name}%`) } },
       },
       skip: (currentPage - 1) * pageSize,
       take: pageSize,
@@ -243,7 +302,11 @@ export class StockService {
   }
 
   // get stocks given a region
-  static async getAllStocksByRegion(region_id: number) {
+  static async getAllStocksByRegion(
+    region_id: number,
+    product_name: string,
+    barcode: string
+  ) {
     const stockRepository = AppDataSource.getRepository(Stock);
     const locationRepository = AppDataSource.getRepository(Location);
     const itemRepository = AppDataSource.getRepository(Item);
@@ -257,10 +320,12 @@ export class StockService {
 
     // const [stocks, total] = await stockRepository.findAndCount({
     const stocks = await stockRepository.find({
-      relations: ["item", "location"],
+      relations: ["item", "location", "item.product"],
       where: {
         location: { location_id: In(locationIds) },
         quantity: MoreThan(0),
+        barcode: ILike(`%${barcode}%`),
+        item: { product: { product_name: ILike(`%${product_name}%`) } },
       },
     });
 
@@ -297,9 +362,13 @@ export class StockService {
   }
 
   // get all already expired stocks
-  static async getExpired(page_size: number, current_page: number) {
-    const stocks = (await this.getAllStocks()).stocks;
-    // const stocks = result.stocks;
+  static async getExpired(
+    page_size: number,
+    current_page: number,
+    product_name: string,
+    barcode: string
+  ) {
+    const stocks = (await this.getAllStocks(product_name, barcode)).stocks;
 
     const today = new Date();
     if (stocks) {
@@ -324,8 +393,13 @@ export class StockService {
   }
 
   // get all stocks expiring soon
-  static async getExpiring(page_size: number, current_page: number) {
-    const stocks = (await this.getAllStocks()).stocks;
+  static async getExpiring(
+    page_size: number,
+    current_page: number,
+    product_name: string,
+    barcode: string
+  ) {
+    const stocks = (await this.getAllStocks(product_name, barcode)).stocks;
 
     const today = new Date();
     const expiringDate = new Date(today);
@@ -351,30 +425,19 @@ export class StockService {
         stocks: paginatedExpiring,
       };
     }
-    // const stocks = await this.getStocksByLocation(location_id);
-    // const today = new Date();
-    // const expiringDate = new Date(today);
-    // expiringDate.setMonth(today.getMonth() + 3);
-    // if (stocks) {
-    //   const expiring = stocks.filter(
-    //     (stock) =>
-    //       stock &&
-    //       stock.exp &&
-    //       new Date(stock.exp) <= expiringDate &&
-    //       new Date(stock.exp) > today &&
-    //       stock.quantity > 0
-    //   );
-    //   return expiring;
-    // }
   }
 
   // get already expired stocks given a region
   static async getExpiredByRegion(
     region_id: number,
     page_size: number,
-    current_page: number
+    current_page: number,
+    product_name: string,
+    barcode: string
   ) {
-    const stocks = (await this.getAllStocksByRegion(region_id)).stocks;
+    const stocks = (
+      await this.getAllStocksByRegion(region_id, product_name, barcode)
+    ).stocks;
 
     const today = new Date();
     if (stocks) {
@@ -402,9 +465,13 @@ export class StockService {
   static async getExpiringByRegion(
     region_id: number,
     page_size: number,
-    current_page: number
+    current_page: number,
+    product_name: string,
+    barcode: string
   ) {
-    const stocks = (await this.getAllStocksByRegion(region_id)).stocks;
+    const stocks = (
+      await this.getAllStocksByRegion(region_id, product_name, barcode)
+    ).stocks;
 
     const today = new Date();
     const expiringDate = new Date(today);
@@ -435,9 +502,13 @@ export class StockService {
   static async getExpiredByLocation(
     location_id: number,
     page_size: number,
-    current_page: number
+    current_page: number,
+    product_name: string,
+    barcode: string
   ) {
-    const stocks = (await this.getAllStocksByLocation(location_id)).stocks;
+    const stocks = (
+      await this.getAllStocksByLocation(location_id, product_name, barcode)
+    ).stocks;
 
     const today = new Date();
     if (stocks) {
@@ -465,9 +536,13 @@ export class StockService {
   static async getExpiringByLocation(
     location_id: number,
     page_size: number,
-    current_page: number
+    current_page: number,
+    product_name: string,
+    barcode: string
   ) {
-    const stocks = (await this.getAllStocksByLocation(location_id)).stocks;
+    const stocks = (
+      await this.getAllStocksByLocation(location_id, product_name, barcode)
+    ).stocks;
 
     const today = new Date();
     const expiringDate = new Date(today);
@@ -545,8 +620,6 @@ export class StockService {
 
         return savedStock;
       });
-
-      return savedStock;
     } catch (error) {
       console.error("Error adding stock:", error);
       throw new Error("Failed to add stock. Please try again later.");
@@ -586,6 +659,7 @@ export class StockService {
     }
   }
   // Hereeeeeeeeeeeeee after
+
   // remove a specified number of items from a stock
   static async updateStock(stock_id: number, quantity: number) {
     const stockRepository = AppDataSource.getRepository(Stock);
@@ -604,8 +678,8 @@ export class StockService {
 
       return true;
     } catch (error) {
-      console.error("Error in removeStock service: ", error);
-      throw new Error("Database error while removing stock");
+      console.error("Error in updateStock service: ", error);
+      throw new Error("Database error while updating stock");
     }
   }
 
@@ -623,15 +697,16 @@ export class StockService {
     return await AppDataSource.manager.transaction(async () => {
       if (!stock) {
         throw new Error("Stock not found");
+      } else {
+        await this.updateStock(stock_id, quantity);
+        await this.addStock(
+          stock.item.item_id,
+          barcode,
+          quantity,
+          destination_id,
+          manager_id
+        );
       }
-      await this.updateStock(stock_id, quantity);
-      await this.addStock(
-        stock.item.item_id,
-        barcode,
-        quantity,
-        destination_id,
-        manager_id
-      );
     });
   }
 }

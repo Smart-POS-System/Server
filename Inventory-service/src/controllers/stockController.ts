@@ -5,12 +5,14 @@ import { error } from "console";
 
 export class StockController {
   static async getAllStocks(req: Request, res: Response) {
-    const { page_size, current_page } = req.body;
+    const { page_size, current_page, product_name, barcode } = req.body;
 
     try {
       const stocks = await StockService.getStocks(
         page_size || 10,
-        current_page || 1
+        current_page || 1,
+        product_name || "",
+        barcode || ""
       );
 
       return res.status(200).json(stocks);
@@ -23,19 +25,34 @@ export class StockController {
   }
 
   static async getStocks(req: Request, res: Response) {
-    const { role, region_id, location_id, page_size, current_page } = req.body;
+    const {
+      role,
+      region_id,
+      location_id,
+      page_size,
+      current_page,
+      product_name,
+      barcode,
+    } = req.body;
 
     let stocks;
 
     try {
       if (role === Roles.GENERAL_MANAGER) {
-        stocks = await StockService.getStocks(page_size, current_page);
+        stocks = await StockService.getStocks(
+          page_size,
+          current_page,
+          product_name,
+          barcode
+        );
       } else if (role === Roles.REGIONAL_MANAGER) {
         if (region_id) {
           stocks = await StockService.getStocksByRegion(
             region_id,
             page_size,
-            current_page
+            current_page,
+            product_name,
+            barcode
           );
         } else {
           res.status(400).json({ error: "Region id not provided." });
@@ -49,7 +66,9 @@ export class StockController {
           stocks = await StockService.getStocksByLocation(
             location_id,
             page_size,
-            current_page
+            current_page,
+            product_name,
+            barcode
           );
         } else {
           res.status(400).json({ error: "Location id not provided." });
@@ -57,22 +76,42 @@ export class StockController {
       }
       res.status(200).json(stocks);
     } catch (error) {
+      console.log(error);
+
       res.status(500).json({ error: "Error fetching data from database." });
     }
   }
 
   static async getExpires(req: Request, res: Response) {
-    const { type, role, region_id, location_id, page_size, current_page } =
-      req.body;
+    const {
+      type,
+      role,
+      region_id,
+      location_id,
+      page_size,
+      current_page,
+      product_name,
+      barcode,
+    } = req.body;
 
     try {
       let expires;
 
       if (role === Roles.GENERAL_MANAGER) {
         if (type === "expired") {
-          expires = await StockService.getExpired(page_size, current_page);
+          expires = await StockService.getExpired(
+            page_size,
+            current_page,
+            product_name,
+            barcode
+          );
         } else if (type === "expiring") {
-          expires = await StockService.getExpiring(page_size, current_page);
+          expires = await StockService.getExpiring(
+            page_size,
+            current_page,
+            product_name,
+            barcode
+          );
         } else {
           return res
             .status(400)
@@ -86,13 +125,17 @@ export class StockController {
           expires = await StockService.getExpiredByRegion(
             region_id,
             page_size,
-            current_page
+            current_page,
+            product_name,
+            barcode
           );
         } else if (type === "expiring") {
           expires = await StockService.getExpiringByRegion(
             region_id,
             page_size,
-            current_page
+            current_page,
+            product_name,
+            barcode
           );
         } else {
           return res
@@ -111,13 +154,17 @@ export class StockController {
           expires = await StockService.getExpiredByLocation(
             location_id,
             page_size,
-            current_page
+            current_page,
+            product_name,
+            barcode
           );
         } else if (type === "expiring") {
           expires = await StockService.getExpiringByLocation(
             location_id,
             page_size,
-            current_page
+            current_page,
+            product_name,
+            barcode
           );
         } else {
           return res
@@ -153,14 +200,29 @@ export class StockController {
   static async addStock(req: Request, res: Response) {
     const { item_id, barcode, quantity, location_id, manager_id } = req.body;
 
-    if (!item_id || !barcode || !quantity || !location_id || !manager_id) {
+    const it_id = parseInt(item_id, 10);
+    const qty = parseInt(quantity, 10);
+    const lct_id = parseInt(location_id, 10);
+    const mgr_id = parseInt(manager_id, 10);
+
+    // console.log("Body in controller: ", req.body);
+
+    // console.log("item: ", item_id);
+    // console.log("barcode: ", barcode);
+    // console.log("quantity: ", quantity);
+    // console.log("location: ", location_id);
+    // console.log("manager: ", manager_id);
+
+    if (!it_id || !barcode || !qty || !lct_id || !mgr_id) {
       return res.status(400).json({
         error:
           "All fields are required: item_id, barcode, quantity, location_id, manager_id.",
       });
     }
 
-    if (typeof quantity !== "number" || quantity <= 0) {
+    if (typeof qty !== "number" || qty <= 0) {
+      console.log(typeof qty);
+
       return res.status(400).json({
         error: "Quantity must be a positive number.",
       });
@@ -168,14 +230,14 @@ export class StockController {
 
     try {
       const savedStock = await StockService.addStock(
-        item_id,
+        it_id,
         barcode,
-        quantity,
-        location_id,
-        manager_id
+        qty,
+        lct_id,
+        mgr_id
       );
 
-      res.status(201).json({ error: "New stock added!", stock: savedStock });
+      res.status(201).json({ message: "New stock added!", stock: savedStock });
     } catch (error) {
       console.error("Error adding new stock:", error);
       res
