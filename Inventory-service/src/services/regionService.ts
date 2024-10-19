@@ -5,7 +5,7 @@ export class regionService {
   static async getRegions() {
     const regionsRepository = AppDataSource.getRepository(Region);
     try {
-      const regions = await regionsRepository.find();
+      const regions = await regionsRepository.find({ relations: ["employee"] });
       return regions;
     } catch (error) {
       console.log("Error fetching regions:", error);
