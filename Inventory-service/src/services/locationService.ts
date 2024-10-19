@@ -1,6 +1,6 @@
 import { AppDataSource } from "../data-source";
 import { Location } from "../entities/Location";
-import { Types } from "../enums/units.enums";
+import { Types } from "../enums/units.enum";
 
 export class LocationService {
   static async addLocation(
@@ -33,12 +33,7 @@ export class LocationService {
   static async getLocations() {
     const locationRepository = AppDataSource.getRepository(Location);
     try {
-      const locations = await locationRepository
-        .find
-        //     {
-        //     relations: ["employee", "region", "stock", "bill"],
-        //   }
-        ();
+      const locations = await locationRepository.find();
       return locations;
     } catch (error) {
       console.log("Error fetching locations:", error);

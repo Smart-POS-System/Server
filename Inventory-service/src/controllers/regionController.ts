@@ -17,15 +17,15 @@ export class RegionController {
     }
   }
   static async getRegionById(req: Request, res: Response) {
-    const { locationId } = req.query;
-    const location_id = parseInt(locationId as string, 10);
+    const { location_id } = req.body;
+
     try {
       const region = await regionService.getRegionById(location_id);
-
-      if (!region) {
-        return res.status(404).json({ msg: "No region found." });
+      if (region) {
+        return res.status(200).json(region);
       }
-      return res.status(200).json(region);
+
+      return res.status(404).json({ msg: "No region found." });
     } catch (error) {
       console.error("Error fetching regions:", error);
       return res.status(500).json({ msg: "Error fetching regions." });
