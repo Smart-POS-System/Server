@@ -3,7 +3,7 @@ import { LocationService } from "../services/locationService";
 
 export class LocationController {
   static async addLocation(req: Request, res: Response) {
-    const { location_name, region_id, type, manager_id } = req.body; // Extract parameters from the request body
+    const { location_name, region_id, type, manager_id } = req.body;
 
     // Validate input
     if (!location_name || !region_id) {
@@ -19,7 +19,7 @@ export class LocationController {
         manager_id,
         region_id
       );
-      return res.status(201).json(location); // Return the created location with a 201 status
+      return res.status(201).json(location);
     } catch (error) {
       console.log("Error creating location:", error);
       return res.status(500).json({ msg: "Error creating location." });
@@ -35,22 +35,26 @@ export class LocationController {
     }
   }
   static async getLocationById(req: Request, res: Response) {
-    const location_id = parseInt(req.params.id);
-    if (isNaN(location_id)) {
-      return res.status(400).json({ message: "Invalid location ID." });
-    }
+    const id = req.query.id;
+    if (typeof id === "string") {
+      const location_id = parseInt(id, 10);
 
-    try {
-      const location = await LocationService.getLocationById(location_id);
-      return res.status(200).json(location);
-    } catch (error) {
-      console.log("Error in getLocationById:", error);
-      if (error instanceof Error) {
-        if (error.message === "Location not found.") {
-          return res.status(404).json({ message: error.message });
-        }
+      if (isNaN(location_id)) {
+        return res.status(400).json({ error: "Invalid location ID" });
       }
-      return res.status(500).json({ message: "Error fetching location." });
+
+      try {
+        const location = await LocationService.getLocationById(location_id);
+        return res.status(200).json(location);
+      } catch (error) {
+        console.log("Error in getLocationById:", error);
+        if (error instanceof Error) {
+          if (error.message === "Location not found.") {
+            return res.status(404).json({ message: error.message });
+          }
+        }
+        return res.status(500).json({ message: "Error fetching location." });
+      }
     }
   }
 
