@@ -38,7 +38,17 @@ dotenv.config({ path: "./config.env" });
 //   database: process.env.DB_NAME,
 //   synchronize: true,
 //   logging: false,
-//   entities: [Customer, Employee, Location, Region, Product, Stock, Item, Bill],
+//   entities: [
+//     Customer,
+//     Employee,
+//     Location,
+//     Region,
+//     Product,
+//     Stock,
+//     Item,
+//     Bill,
+//     Stock_Log,
+//   ],
 // });
 
 //For remote database
