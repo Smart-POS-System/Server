@@ -10,6 +10,7 @@ import {
   updateLoggedUser,
   createAdmin,
   updateImage,
+  getUsersForApp,
 } from "../Controllers/employeeController";
 import {
   checkMail,
@@ -149,6 +150,8 @@ router.post("/logout", logout);
  */
 
 router.patch("/updatePassword", protect, updatePasswordByUser, errorHandler);
+
+router.route("/usersForMobile").get(protect, getUsersForApp, errorHandler);
 
 router
   .route("/")
