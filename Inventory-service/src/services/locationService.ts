@@ -45,7 +45,22 @@ export class LocationService {
     try {
       const location = await locationRepository.findOne({
         where: { location_id: location_id },
-        relations: ["employee", "region", "stock", "bill"],
+        select: {
+          location_id: true,
+          name: true,
+          type: true,
+          manager: {
+            employee_id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+          region: {
+            region_id: true,
+            name: true,
+          },
+        },
+        relations: ["manager", "region"],
       });
 
       if (!location) {

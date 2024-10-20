@@ -1,4 +1,4 @@
-import { In, MoreThan, ILike } from "typeorm";
+import { In, MoreThan, ILike, FindOperator } from "typeorm";
 import { AppDataSource } from "../data-source";
 import { Item } from "../entities/Item";
 import { Stock } from "../entities/Stock";
@@ -47,16 +47,44 @@ export class StockService {
     const pageSize = page_size || 10;
     const currentPage = current_page || 1;
 
+    // define the where conditions as required
+    const whereConditions: {
+      quantity: FindOperator<number>;
+      barcode?: FindOperator<string>;
+      item?: { product: { product_name: FindOperator<string> } };
+    } = {
+      quantity: MoreThan(0),
+    };
+
+    // Only add barcode condition if it's defined
+    if (barcode) {
+      whereConditions.barcode = ILike(`%${barcode}%`);
+    }
+
+    // Only add product name condition if it's defined
+    if (product_name) {
+      whereConditions.item = {
+        product: { product_name: ILike(`%${product_name}%`) },
+      };
+    }
+
     const [stocks, total] = await stockRepository.findAndCount({
-      relations: ["item", "location"],
-      where: {
-        quantity: MoreThan(0),
-        barcode: ILike(`%${barcode}%`),
-        item: { product: { product_name: ILike(`%${product_name}%`) } },
-      },
+      relations: ["item", "location", "item.product"],
+      where: whereConditions,
       skip: (currentPage - 1) * pageSize,
       take: pageSize,
     });
+
+    // const [stocks, total] = await stockRepository.findAndCount({
+    //   relations: ["item", "location"],
+    //   where: {
+    //     quantity: MoreThan(0),
+    //     barcode: ILike(`%${barcode}%`),
+    //     item: { product: { product_name: ILike(`%${product_name}%`) } },
+    //   },
+    //   skip: (currentPage - 1) * pageSize,
+    //   take: pageSize,
+    // });
 
     const flatArray = await Promise.all(
       stocks.map(async (stock) => {
@@ -81,7 +109,7 @@ export class StockService {
     };
   }
 
-  // get stocks given of all locations (Paginated)
+  // get stocks given of all locations
   static async getAllStocks(product_name: string, barcode: string) {
     const stockRepository = AppDataSource.getRepository(Stock);
     const itemRepository = AppDataSource.getRepository(Item);
@@ -133,42 +161,35 @@ export class StockService {
     const pageSize = page_size || 10;
     const currentPage = current_page || 1;
 
-    console.log(pageSize);
+    // define the where conditions as required
+    const whereConditions: {
+      location: { location_id: number };
+      quantity: FindOperator<number>;
+      barcode?: FindOperator<string>;
+      item?: { product: { product_name: FindOperator<string> } };
+    } = {
+      location: { location_id: location_id },
+      quantity: MoreThan(0),
+    };
+
+    // Only add barcode condition if it's defined
+    if (barcode) {
+      whereConditions.barcode = ILike(`%${barcode}%`);
+    }
+
+    // Only add product name condition if it's defined
+    if (product_name) {
+      whereConditions.item = {
+        product: { product_name: ILike(`%${product_name}%`) },
+      };
+    }
 
     const [stocks, total] = await stockRepository.findAndCount({
       relations: ["item", "location", "item.product"],
-      where: {
-        location: { location_id: location_id },
-        quantity: MoreThan(0),
-        barcode: ILike(`%${barcode}%`),
-        item: { product: { product_name: ILike(`%${product_name}%`) } },
-      },
+      where: whereConditions,
       skip: (currentPage - 1) * pageSize,
       take: pageSize,
     });
-    // const [stocks, total] = await stockRepository.findAndCount({
-    //   relations: ["item", "location"],
-    //   where: {
-    //     location: { location_id: location_id },
-    //     quantity: MoreThan(0),
-    //     item: { product: { product_name: Like(`%${product_name}%`) } },
-    //   },
-    //   skip: (currentPage - 1) * pageSize,
-    //   take: pageSize,
-    // });
-    // console.log(
-    //   JSON.stringify(
-    //     stocks,
-    //     (key, value) => {
-    //       // Optionally filter out properties you don't want to log
-    //       if (key === "product") {
-    //         return value; // Return the product object to include it
-    //       }
-    //       return value; // Include all other properties
-    //     },
-    //     2
-    //   )
-    // );
 
     const flatArray = await Promise.all(
       stocks.map(async (stock) => {
@@ -201,16 +222,44 @@ export class StockService {
     const stockRepository = AppDataSource.getRepository(Stock);
     const itemRepository = AppDataSource.getRepository(Item);
 
-    // const [stocks, total] = await stockRepository.findAndCount({
+    // define the where conditions as required
+    const whereConditions: {
+      location: { location_id: number };
+      quantity: FindOperator<number>;
+      barcode?: FindOperator<string>;
+      item?: { product: { product_name: FindOperator<string> } };
+    } = {
+      location: { location_id: location_id },
+      quantity: MoreThan(0),
+    };
+
+    // Only add barcode condition if it's defined
+    if (barcode) {
+      whereConditions.barcode = ILike(`%${barcode}%`);
+    }
+
+    // Only add product name condition if it's defined
+    if (product_name) {
+      whereConditions.item = {
+        product: { product_name: ILike(`%${product_name}%`) },
+      };
+    }
+
     const stocks = await stockRepository.find({
       relations: ["item", "location", "item.product"],
-      where: {
-        location: { location_id: location_id },
-        quantity: MoreThan(0),
-        barcode: ILike(`%${barcode}%`),
-        item: { product: { product_name: ILike(`%${product_name}%`) } },
-      },
+      where: whereConditions,
     });
+
+    // const [stocks, total] = await stockRepository.findAndCount({
+    // const stocks = await stockRepository.find({
+    //   relations: ["item", "location", "item.product"],
+    //   where: {
+    //     location: { location_id: location_id },
+    //     quantity: MoreThan(0),
+    //     barcode: ILike(`%${barcode}%`),
+    //     item: { product: { product_name: ILike(`%${product_name}%`) } },
+    //   },
+    // });
 
     const flatArray = await Promise.all(
       stocks.map(async (stock) => {
@@ -370,6 +419,8 @@ export class StockService {
   ) {
     const stocks = (await this.getAllStocks(product_name, barcode)).stocks;
 
+    console.log("Stocks: ", stocks);
+
     const today = new Date();
     if (stocks) {
       const expired = stocks.filter(
@@ -506,6 +557,12 @@ export class StockService {
     product_name: string,
     barcode: string
   ) {
+    console.log(location_id);
+    console.log(page_size);
+    console.log(current_page);
+    console.log(product_name);
+    console.log(barcode);
+
     const stocks = (
       await this.getAllStocksByLocation(location_id, product_name, barcode)
     ).stocks;
@@ -665,13 +722,25 @@ export class StockService {
     const stockRepository = AppDataSource.getRepository(Stock);
     try {
       const result = await stockRepository.findOneBy({ stock_id: stock_id });
+      console.log("Previous: ", result);
 
       if (!result) {
         throw new Error("Stock not found");
       }
 
       if (result.quantity >= quantity) {
-        result.quantity -= quantity;
+        // console.log(
+        //   "Quantity float: ",
+        //   parseFloat(quantity.toFixed(3)),
+        //   "Quantity float: ",
+        //   result.quantity
+        // );
+
+        result.quantity = parseFloat((result.quantity - quantity).toFixed(3));
+        console.log("Quantity: ", result.quantity);
+
+        const updatedStock = await stockRepository.save(result);
+        console.log("Updated: ", updatedStock);
       } else {
         throw new Error("Not enough stocks available!");
       }
@@ -686,13 +755,18 @@ export class StockService {
   // send a specified number of items from a stock from one location to another
   static async sendStock(
     stock_id: number,
-    barcode: string,
     quantity: number,
     destination_id: number,
     manager_id: number // manager of requested store
   ) {
+    // console.log("Quantity 1st: ", parseFloat(quantity.toFixed(3)));
+    console.log("Quantity 1st: ", quantity);
+
     const stockRepository = AppDataSource.getRepository(Stock);
-    const stock = await stockRepository.findOneBy({ stock_id: stock_id });
+    const stock = await stockRepository.findOne({
+      where: { stock_id: stock_id },
+      relations: ["item"],
+    });
 
     return await AppDataSource.manager.transaction(async () => {
       if (!stock) {
@@ -701,7 +775,7 @@ export class StockService {
         await this.updateStock(stock_id, quantity);
         await this.addStock(
           stock.item.item_id,
-          barcode,
+          stock.barcode,
           quantity,
           destination_id,
           manager_id
