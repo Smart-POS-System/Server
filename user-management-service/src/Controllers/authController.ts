@@ -107,7 +107,7 @@ export const protect = catchAsync(
       const decoded: any = await verifyToken(token, jwtSecret);
 
       const currentUser = await isUserExist(decoded.email);
-      console.log("Current User: ", currentUser);
+      //  console.log("Current User: ", currentUser);
 
       if (!currentUser) {
         return next(
@@ -130,6 +130,7 @@ export const protect = catchAsync(
 
       // Grant access to protected route
       req.user = currentUser;
+      // console.log("Current User: ", req.user);
       next();
     } catch (err) {
       return next(new AppError("Invalid token or token expired", 401));

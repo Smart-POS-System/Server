@@ -6,6 +6,7 @@ import {
   createUser,
   deleteOneUser,
   getAllUsers,
+  getAllUsersForApp,
   getOneUser,
   getUserByEmailAndCurrentPassword,
   updateMe,
@@ -404,5 +405,28 @@ export const createAdmin = catchAsync(
         message: "Account created successfully",
       },
     });
+  }
+);
+
+export const getUsersForApp = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const allowedRoles = getCurrentUserRoleInfo(req.user);
+
+      const users = await getAllUsersForApp(allowedRoles);
+
+      if (!users || users.length === 0) {
+        return next(new AppError("No users found", 404));
+      }
+
+      res.status(200).json({
+        status: "success",
+        data: {
+          users,
+        },
+      });
+    } catch (err: any) {
+      return next(new AppError(err.message, 400));
+    }
   }
 );
