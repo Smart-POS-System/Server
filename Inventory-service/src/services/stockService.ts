@@ -7,8 +7,6 @@ import { Stock_Log } from "../entities/Stock_Log";
 import { Inventory_Transactions } from "../enums/inventoryTransactions.enum";
 import { error } from "console";
 import { Employee } from "../entities/Employee";
-import { Product } from "../entities/Product";
-import { Roles } from "../enums/roles.enum";
 
 export class StockService {
   static getFlatArray(
@@ -74,17 +72,6 @@ export class StockService {
       skip: (currentPage - 1) * pageSize,
       take: pageSize,
     });
-
-    // const [stocks, total] = await stockRepository.findAndCount({
-    //   relations: ["item", "location"],
-    //   where: {
-    //     quantity: MoreThan(0),
-    //     barcode: ILike(`%${barcode}%`),
-    //     item: { product: { product_name: ILike(`%${product_name}%`) } },
-    //   },
-    //   skip: (currentPage - 1) * pageSize,
-    //   take: pageSize,
-    // });
 
     const flatArray = await Promise.all(
       stocks.map(async (stock) => {
@@ -250,17 +237,6 @@ export class StockService {
       where: whereConditions,
     });
 
-    // const [stocks, total] = await stockRepository.findAndCount({
-    // const stocks = await stockRepository.find({
-    //   relations: ["item", "location", "item.product"],
-    //   where: {
-    //     location: { location_id: location_id },
-    //     quantity: MoreThan(0),
-    //     barcode: ILike(`%${barcode}%`),
-    //     item: { product: { product_name: ILike(`%${product_name}%`) } },
-    //   },
-    // });
-
     const flatArray = await Promise.all(
       stocks.map(async (stock) => {
         const item_id = stock.item.item_id;
@@ -405,7 +381,6 @@ export class StockService {
     );
 
     return {
-      // stockCount: total,
       stocks: flatArray,
     };
   }
@@ -418,8 +393,6 @@ export class StockService {
     barcode: string
   ) {
     const stocks = (await this.getAllStocks(product_name, barcode)).stocks;
-
-    console.log("Stocks: ", stocks);
 
     const today = new Date();
     if (stocks) {
@@ -470,7 +443,6 @@ export class StockService {
         current_page * page_size
       );
 
-      // return expired;
       return {
         expiringCount: expiring.length,
         stocks: paginatedExpiring,
@@ -557,12 +529,6 @@ export class StockService {
     product_name: string,
     barcode: string
   ) {
-    console.log(location_id);
-    console.log(page_size);
-    console.log(current_page);
-    console.log(product_name);
-    console.log(barcode);
-
     const stocks = (
       await this.getAllStocksByLocation(location_id, product_name, barcode)
     ).stocks;
@@ -715,32 +681,20 @@ export class StockService {
       throw new Error("Database error while removing stock.");
     }
   }
-  // Hereeeeeeeeeeeeee after
 
   // remove a specified number of items from a stock
   static async updateStock(stock_id: number, quantity: number) {
     const stockRepository = AppDataSource.getRepository(Stock);
     try {
       const result = await stockRepository.findOneBy({ stock_id: stock_id });
-      console.log("Previous: ", result);
 
       if (!result) {
         throw new Error("Stock not found");
       }
 
       if (result.quantity >= quantity) {
-        // console.log(
-        //   "Quantity float: ",
-        //   parseFloat(quantity.toFixed(3)),
-        //   "Quantity float: ",
-        //   result.quantity
-        // );
-
         result.quantity = parseFloat((result.quantity - quantity).toFixed(3));
-        console.log("Quantity: ", result.quantity);
-
         const updatedStock = await stockRepository.save(result);
-        console.log("Updated: ", updatedStock);
       } else {
         throw new Error("Not enough stocks available!");
       }
@@ -759,8 +713,6 @@ export class StockService {
     destination_id: number,
     manager_id: number // manager of requested store
   ) {
-    // console.log("Quantity 1st: ", parseFloat(quantity.toFixed(3)));
-    console.log("Quantity 1st: ", quantity);
 
     const stockRepository = AppDataSource.getRepository(Stock);
     const stock = await stockRepository.findOne({

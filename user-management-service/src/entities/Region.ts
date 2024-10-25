@@ -3,8 +3,8 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Employee } from "./Employee";
@@ -18,7 +18,7 @@ export class Region {
   @Column()
   name: string;
 
-  @OneToOne(() => Employee, (employee) => employee.region)
+  @ManyToOne(() => Employee, (employee) => employee.regions)
   @JoinColumn({ name: "manager_id" })
   employee: Employee;
 

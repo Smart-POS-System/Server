@@ -25,6 +25,7 @@ export class LocationController {
       return res.status(500).json({ msg: "Error creating location." });
     }
   }
+
   static async getLocations(req: Request, res: Response) {
     try {
       const locations = await LocationService.getLocations();
@@ -34,6 +35,21 @@ export class LocationController {
       return res.status(500).json({ message: "Error fetching locations." });
     }
   }
+
+  static async deleteLocation(req: Request, res: Response) {
+    const { location_id } = req.body;
+    if (!location_id) {
+      return res.status(400).json({ msg: "Location ID is required." });
+    }
+    try {
+      await LocationService.deleteLocation(location_id);
+      res.status(200).json({ msg: "Location deleted successfully." });
+    } catch (error) {
+      console.error("Error deleting location:", error);
+      return res.status(500).json({ msg: "Error deleting location." });
+    }
+  }
+
   static async getLocationById(req: Request, res: Response) {
     const id = req.query.id;
     if (typeof id === "string") {
@@ -67,6 +83,7 @@ export class LocationController {
       return res.status(500).json({ message: "Error fetching stores." });
     }
   }
+
   static async getInventories(req: Request, res: Response) {
     try {
       const locations = await LocationService.getInventories();
