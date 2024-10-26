@@ -5,6 +5,7 @@ import { Bill } from "../entities/Bill";
 import { Employee } from "../entities/Employee";
 import { Location } from "../entities/Location";
 
+//new tests
 jest.mock("../data-source");
 
 const mockBillRepository = {
