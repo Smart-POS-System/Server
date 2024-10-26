@@ -39,7 +39,8 @@ export const sendMail = async (options: MailOptions): Promise<void> => {
       from: process.env.EMAIL_PROD,
       to: options.email,
       subject: options.subject,
-      text: options.message,
+      //text: options.message,
+      html: options.message,
     };
 
     await transporter.sendMail(mailOptions);
