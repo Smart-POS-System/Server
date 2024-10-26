@@ -179,14 +179,96 @@ export const sendEmailToUser = async (
   email: string
 ) => {
   const resetURL = `${protocol}://${
-    "localhost:3001" || host
+    host || "localhost:3001"
   }/reset/${resetToken}`;
-  const message = `Forgot your password? Go to this link and enter your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
+
+  const htmlMessage = `<!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Password Reset</title>
+      <style>
+          body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 0;
+              background-color: #f4f8ff;
+              color: #333;
+          }
+          .container {
+              background-color: #ffffff;
+              padding: 30px;
+              border-radius: 8px;
+              max-width: 600px;
+              margin: 40px auto;
+              box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+              border-top: 5px solid #007bff;
+          }
+          .header {
+              text-align: center;
+              margin-bottom: 30px;
+          }
+          .header h1 {
+              margin: 0;
+              color: #007bff;
+              font-size: 24px;
+          }
+          .content {
+              margin-bottom: 30px;
+              color: #444;
+              font-size: 16px;
+              line-height: 1.6;
+          }
+          .content p {
+              margin: 15px 0;
+          }
+          .reset-link {
+              display: inline-block;
+              padding: 12px 25px;
+              background-color: #007bff;
+              color: #ffffff;
+              text-decoration: none;
+              font-weight: bold;
+              border-radius: 25px;
+              box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+              transition: background-color 0.3s ease;
+          }
+          .reset-link:hover {
+              background-color: #0056b3;
+          }
+          .footer {
+              text-align: center;
+              color: #888;
+              font-size: 12px;
+              margin-top: 20px;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="header">
+              <h1>Password Reset</h1>
+          </div>
+          <div class="content">
+              <p>Hello,</p>
+              <p>We received a request to reset your password. Click the button below to reset it:</p>
+              <div style="text-align: center; margin-top: 20px;">
+                  <a href="${resetURL}" class="reset-link">Reset Password</a>
+              </div>
+              <p>If you didn't request a password reset, please ignore this email. Your password will remain unchanged.</p>
+          </div>
+          <div class="footer">
+              <p>This link is valid for 10 minutes.</p>
+          </div>
+      </div>
+  </body>
+  </html>`;
 
   await sendMail({
     email,
     subject: "Password Reset (valid for 10 minutes)",
-    message,
+    message: htmlMessage,
   });
 };
 
