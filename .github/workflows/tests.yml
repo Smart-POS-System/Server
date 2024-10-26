@@ -6,6 +6,7 @@ on:
      # - 'sales-and-payment-service/**'
       # - 'inventory-service/**'
       # - 'user-service/**'
+      #update
 
 jobs:
   tests:
