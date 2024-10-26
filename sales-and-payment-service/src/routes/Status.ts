@@ -22,19 +22,6 @@ router.post(
   ],
   validateRequest,
   BillController.changeStatus
-  // async (req: Request, res: Response) => {
-  //   const order_id = 3;
-
-  //   const orderRepository = AppDataSource.getRepository(Bill);
-  //   const bill = await orderRepository.findOneBy({ bill_id: order_id });
-  //   if (bill) {
-  //     bill.status = Bill_Status.CANCELLED;
-  //     await orderRepository.save(bill);
-  //     res.send({ msg: "bill status updated" }).status(200);
-  //   } else {
-  //     res.send({ msg: "no such bill exsists" }).status(404);
-  //   }
-  //}
 );
 
 export { router as status };

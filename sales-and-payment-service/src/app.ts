@@ -6,6 +6,7 @@ import { newOrder } from "./routes/newOrder";
 import { getOrder } from "./routes/getOrder";
 import { getOrderbyId } from "./routes/getOrderById";
 import { status } from "./routes/Status";
+import cookieParser from "cookie-parser";
 
 const app = express();
 const corsOptions = {
@@ -16,7 +17,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 //app.set("trust proxy", true);
 app.use(json());
-
+app.use(cookieParser());
 //app.use(errorHandler); //custom middleware for error handeling
 app.use(sample);
 app.use(newOrder);

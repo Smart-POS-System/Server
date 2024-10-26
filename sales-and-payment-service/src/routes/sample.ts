@@ -9,10 +9,11 @@
  *         description: A successful response
  */
 import express from "express";
+import { protect } from "../controllers/authController";
 
 const router = express.Router();
 
-router.get("/sample", (req, res) => {
+router.get("/sample", protect, (req, res) => {
   res.json({ message: "This is a sample message" });
 });
 

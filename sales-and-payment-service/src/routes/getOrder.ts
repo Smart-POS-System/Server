@@ -5,15 +5,6 @@ import { BillController } from "../controllers/billController";
 
 const router = express.Router();
 
-router.get(
-  "/getOrder",
-  BillController.getAllOrders
-  // async (req: Request, res: Response) => {
-  //   const orderRepository = AppDataSource.getRepository(Bill);
-  //   const bills = await orderRepository.find();
-  //   console.log(bills);
-  //   res.send(bills).status(200);
-  //}
-);
+router.get("/getOrder", BillController.getAllOrders);
 
 export { router as getOrder };
