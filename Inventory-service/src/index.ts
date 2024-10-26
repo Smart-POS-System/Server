@@ -25,7 +25,7 @@ const start = async () => {
   //   swaggerUi.serve,
   //   swaggerUi.setup(specs)
   // );
-  const port = 3010;
+  const port = 3000;
   //startig server
   app.listen(port, () => {
     console.log(`inventory srv listening http://inventory-srv:${port}`),
