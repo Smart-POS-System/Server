@@ -223,3 +223,25 @@ export const updateMe = async (id: number, data: any) => {
 
   return user;
 };
+
+export const getAllUsersForApp = async (allowedRoles: string[]) => {
+  const userRepository = AppDataSource.getRepository(Employee);
+  let queryBuilder = userRepository
+    .createQueryBuilder("employee")
+    .where("employee.role IN (:...allowedRoles)", { allowedRoles })
+    .select([
+      "employee.employee_id",
+      "employee.name",
+      "employee.email",
+      "employee.role",
+      "employee.is_active",
+      "employee.image",
+      "employee.location",
+    ]);
+
+  const users = await queryBuilder
+    .orderBy("employee.employee_id", "ASC")
+    .getMany();
+
+  return users;
+};
