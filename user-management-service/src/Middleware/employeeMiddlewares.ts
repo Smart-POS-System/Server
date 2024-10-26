@@ -89,14 +89,91 @@ export const validateUser = [
 // );
 
 export const sendMailToUser = async (email: string, role: string) => {
+  console.log("Sending email to: ", email);
   const defaultPassword = `POS${email}`;
-  const message = `You have been added to our POS System as a ${role}. Your default password is ${defaultPassword}. MAKE SURE TO UPDATE THIS DEFAULT PASSWORD ONCE YOU LOGGED IN. If you did not request this, please ignore this email.`;
+  const htmlMessage = `<!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Welcome to the POS System</title>
+      <style>
+          body {
+              font-family: Arial, sans-serif;
+              background-color: #f4f8ff;
+              color: #333;
+              margin: 0;
+              padding: 0;
+          }
+          .container {
+              max-width: 600px;
+              margin: 40px auto;
+              padding: 30px;
+              background-color: #ffffff;
+              border-radius: 8px;
+              box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+              border-top: 5px solid #28a745;
+          }
+          .header {
+              text-align: center;
+              margin-bottom: 30px;
+          }
+          .header h1 {
+              color: #28a745;
+              margin: 0;
+              font-size: 24px;
+          }
+          .content {
+              font-size: 16px;
+              line-height: 1.6;
+              color: #555;
+          }
+          .content p {
+              margin: 10px 0;
+          }
+          .password {
+              display: block;
+              margin: 20px 0;
+              padding: 10px 15px;
+              background-color: #f9f9f9;
+              border-left: 4px solid #007bff;
+              font-weight: bold;
+              font-size: 16px;
+              color: #333;
+          }
+          .footer {
+              margin-top: 30px;
+              text-align: center;
+              font-size: 12px;
+              color: #888;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="header">
+              <h1>Welcome to the POS System!</h1>
+          </div>
+          <div class="content">
+              <p>Hello,</p>
+              <p>You have been added to our POS System with the role of <strong>${role}</strong>.</p>
+              <p>Your default password is:</p>
+              <div class="password">${defaultPassword}</div>
+              <p><strong>Please make sure to update this default password once you log in for security purposes.</strong></p>
+              <p>If you did not request this, please ignore this email.</p>
+          </div>
+          <div class="footer">
+              <p>This email was sent by our automated system.</p>
+          </div>
+      </div>
+  </body>
+  </html>`;
 
   try {
     await sendMail({
       email: email,
-      subject: "Congratulations! You have been added to our POS System",
-      message,
+      subject: "You have been added to our Smart Point of Sale System",
+      message: htmlMessage,
     });
     return true;
   } catch (err: any) {
