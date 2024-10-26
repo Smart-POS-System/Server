@@ -82,6 +82,26 @@ export class StockController {
     }
   }
 
+  static async getStocksByBarcode(req: Request, res: Response) {
+    const { location_id, barcode } = req.body;
+
+    try {
+      if (!location_id) {
+        res.status(400).json({ error: "Location id not provided." });
+      } else if (!barcode) {
+        res.status(400).json({ error: "Barcode not provided." });
+      } else {
+        const stocks = await StockService.getStocksByBarcode(
+          location_id,
+          barcode
+        );
+        res.status(200).json(stocks);
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Error fetching data from database." });
+    }
+  }
+
   static async getExpires(req: Request, res: Response) {
     const {
       type,

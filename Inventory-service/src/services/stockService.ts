@@ -260,6 +260,37 @@ export class StockService {
     };
   }
 
+  // get stocks by barcode
+  static async getStocksByBarcode(location_id: number, barcode: string) {
+    const stockRepository = AppDataSource.getRepository(Stock);
+    const itemRepository = AppDataSource.getRepository(Item);
+
+    const stocks = await stockRepository.find({
+      relations: ["item", "location", "item.product"],
+      where: {
+        location: { location_id: location_id },
+        barcode: ILike(`%${barcode}%`),
+      },
+    });
+    const flatArray = await Promise.all(
+      stocks.map(async (stock) => {
+        const item_id = stock.item.item_id;
+
+        const productDetails = await itemRepository.find({
+          relations: ["product"],
+          where: { item_id: item_id },
+        });
+
+        if (productDetails.length > 0) {
+          const product = productDetails[0];
+          return this.getFlatArray(item_id, stock, product);
+        }
+        return null;
+      })
+    );
+    return flatArray;
+  }
+
   // get stocks given a region
   static async getStocksByRegion(
     region_id: number,
@@ -713,7 +744,6 @@ export class StockService {
     destination_id: number,
     manager_id: number // manager of requested store
   ) {
-
     const stockRepository = AppDataSource.getRepository(Stock);
     const stock = await stockRepository.findOne({
       where: { stock_id: stock_id },
