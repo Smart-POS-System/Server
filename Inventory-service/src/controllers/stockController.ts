@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { StockService } from "../services/stockService";
 import { Roles } from "../enums/roles.enum";
-import { error } from "console";
+import { LocationService } from "../services/locationService";
 
 export class StockController {
   static async getAllStocks(req: Request, res: Response) {
@@ -78,6 +78,26 @@ export class StockController {
     } catch (error) {
       console.log(error);
 
+      res.status(500).json({ error: "Error fetching data from database." });
+    }
+  }
+
+  static async getStocksByBarcode(req: Request, res: Response) {
+    const { location_id, barcode } = req.body;
+
+    try {
+      if (!location_id) {
+        res.status(400).json({ error: "Location id not provided." });
+      } else if (!barcode) {
+        res.status(400).json({ error: "Barcode not provided." });
+      } else {
+        const stocks = await StockService.getStocksByBarcode(
+          location_id,
+          barcode
+        );
+        res.status(200).json(stocks);
+      }
+    } catch (error) {
       res.status(500).json({ error: "Error fetching data from database." });
     }
   }
@@ -283,11 +303,14 @@ export class StockController {
   }
 
   static async sendStock(req: Request, res: Response) {
-    const { stockId, barcode, qty, src, dest, manager_id } = req.body;
+    const { stockId, qty, src, dest } = req.body;
     const stock_id = parseInt(stockId, 10);
-    const quantity = parseInt(qty, 10);
+    const quantity = parseFloat(qty.toFixed(3));
     const source_id = parseInt(src, 10);
     const destination_id = parseInt(dest, 10);
+
+    const destination = await LocationService.getLocationById(destination_id);
+    const manager_id = destination.manager?.employee_id;
 
     if (
       isNaN(stock_id) ||
@@ -302,16 +325,20 @@ export class StockController {
     }
 
     try {
-      await StockService.sendStock(
-        stock_id,
-        barcode,
-        quantity,
-        destination_id,
-        manager_id
-      );
+      if (manager_id) {
+        await StockService.sendStock(
+          stock_id,
+          quantity,
+          destination_id,
+          manager_id
+        );
+        res.status(200).send({ msg: "Stock sent successfully!" });
+      } else {
+        res.status(500).json({ error: "Error with the destination." });
+      }
     } catch (error) {
       console.log("Error sending stock ", error);
-      res.status(400).json({ error: "Error sending stock" });
+      res.status(500).json({ error: "Error sending stock" });
     }
   }
 }

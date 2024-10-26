@@ -3,6 +3,6 @@ import { LocationController } from "../controllers/locationController";
 
 const router = express.Router();
 
-router.get("/location", LocationController.getLocationById);
+router.post("/removeLocation", LocationController.deleteLocation);
 
-export { router as getLocationById };
+export { router as removeLocation };

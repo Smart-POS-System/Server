@@ -3,7 +3,7 @@ import { LocationService } from "../services/locationService";
 
 export class LocationController {
   static async addLocation(req: Request, res: Response) {
-    const { location_name, region_id, type, manager_id } = req.body; // Extract parameters from the request body
+    const { location_name, region_id, type, manager_id } = req.body;
 
     // Validate input
     if (!location_name || !region_id) {
@@ -19,12 +19,13 @@ export class LocationController {
         manager_id,
         region_id
       );
-      return res.status(201).json(location); // Return the created location with a 201 status
+      return res.status(201).json(location);
     } catch (error) {
       console.log("Error creating location:", error);
       return res.status(500).json({ msg: "Error creating location." });
     }
   }
+
   static async getLocations(req: Request, res: Response) {
     try {
       const locations = await LocationService.getLocations();
@@ -34,23 +35,42 @@ export class LocationController {
       return res.status(500).json({ message: "Error fetching locations." });
     }
   }
-  static async getLocationById(req: Request, res: Response) {
-    const location_id = parseInt(req.params.id);
-    if (isNaN(location_id)) {
-      return res.status(400).json({ message: "Invalid location ID." });
-    }
 
+  static async deleteLocation(req: Request, res: Response) {
+    const { location_id } = req.body;
+    if (!location_id) {
+      return res.status(400).json({ msg: "Location ID is required." });
+    }
     try {
-      const location = await LocationService.getLocationById(location_id);
-      return res.status(200).json(location);
+      await LocationService.deleteLocation(location_id);
+      res.status(200).json({ msg: "Location deleted successfully." });
     } catch (error) {
-      console.log("Error in getLocationById:", error);
-      if (error instanceof Error) {
-        if (error.message === "Location not found.") {
-          return res.status(404).json({ message: error.message });
-        }
+      console.error("Error deleting location:", error);
+      return res.status(500).json({ msg: "Error deleting location." });
+    }
+  }
+
+  static async getLocationById(req: Request, res: Response) {
+    const id = req.query.id;
+    if (typeof id === "string") {
+      const location_id = parseInt(id, 10);
+
+      if (isNaN(location_id)) {
+        return res.status(400).json({ error: "Invalid location ID" });
       }
-      return res.status(500).json({ message: "Error fetching location." });
+
+      try {
+        const location = await LocationService.getLocationById(location_id);
+        return res.status(200).json(location);
+      } catch (error) {
+        console.log("Error in getLocationById:", error);
+        if (error instanceof Error) {
+          if (error.message === "Location not found.") {
+            return res.status(404).json({ message: error.message });
+          }
+        }
+        return res.status(500).json({ message: "Error fetching location." });
+      }
     }
   }
 
@@ -63,6 +83,7 @@ export class LocationController {
       return res.status(500).json({ message: "Error fetching stores." });
     }
   }
+
   static async getInventories(req: Request, res: Response) {
     try {
       const locations = await LocationService.getInventories();

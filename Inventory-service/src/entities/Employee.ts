@@ -4,7 +4,6 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  OneToOne,
   OneToMany,
   JoinColumn,
 } from "typeorm";
@@ -41,8 +40,8 @@ export class Employee {
   })
   role: Roles;
 
-  @OneToOne(() => Region, (region) => region.employee)
-  region: Region; //regionamanager relationship
+  @OneToMany(() => Region, (region) => region.employee)
+  regions: Region[]; //regionamanager relationship
 
   @ManyToOne(() => Location, (location) => location.employees, {
     nullable: true,
